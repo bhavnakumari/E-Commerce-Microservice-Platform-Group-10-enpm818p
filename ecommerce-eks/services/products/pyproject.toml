@@ -1,9 +1,10 @@
-# services/products/pyproject.toml
 [project]
 name = "products"
 version = "0.0.1"
 requires-python = ">=3.11"
-dependencies = ["fastapi","uvicorn[standard]"]
-
-[tool.uvicorn]
-factory = false
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "pymongo",
+  "redis"
+]
