@@ -1,0 +1,4 @@
+# k8s/overlays/dev/kustomization.yaml
+resources:
+  - ../../base
+namespace: shop

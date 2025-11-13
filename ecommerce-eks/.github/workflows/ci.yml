@@ -1,0 +1,8 @@
+# .github/workflows/ci.yml
+name: CI
+on: [pull_request]
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CI placeholder"

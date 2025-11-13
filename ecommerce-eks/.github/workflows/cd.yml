@@ -1,0 +1,10 @@
+# .github/workflows/cd.yml
+name: CD
+on:
+  push:
+    branches: [ main ]
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CD placeholder"
