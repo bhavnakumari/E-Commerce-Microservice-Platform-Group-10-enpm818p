@@ -1,33 +1,15 @@
+# services/products/app/schemas.py
 from typing import Optional
 from pydantic import BaseModel, Field
-from bson import ObjectId
-
-
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, ObjectId):
-            return v
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
 
 
 class ProductBase(BaseModel):
-    name: str
-    sku: str
-    description: Optional[str] = None
-    price: float = Field(..., gt=0)
-    stock: int = Field(..., ge=0)
-    category: Optional[str] = None
+    name: str = Field(..., example="Classic T-Shirt")
+    sku: str = Field(..., example="TS001")
+    description: Optional[str] = Field(None, example="100% cotton")
+    price: float = Field(..., gt=0, example=19.99)
+    stock: int = Field(..., ge=0, example=50)
+    category: Optional[str] = Field(None, example="apparel")
 
 
 class ProductCreate(ProductBase):
@@ -44,9 +26,4 @@ class ProductUpdate(BaseModel):
 
 
 class Product(ProductBase):
-    id: PyObjectId = Field(alias="_id")
-
-    class Config:
-        populate_by_name = True
-        from_attributes = True
-        json_encoders = {ObjectId: str}
+    id: str = Field(..., example="a96f3a4e-6fb8-4e40-8dc3-01a7f29c9a0f")
