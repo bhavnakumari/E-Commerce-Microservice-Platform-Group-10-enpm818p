@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mongo:
     image: mongo:7
@@ -16,7 +14,7 @@ services:
     build: ./services/products
     container_name: products
     environment:
-      MONGO_URI: mongodb://mongo:27017/shop
+      MONGO_URI: mongodb://mongo:27017
       MONGO_DB: shop
       MONGO_PRODUCTS_COLLECTION: products
     depends_on:
@@ -24,3 +22,33 @@ services:
         condition: service_healthy
     ports:
       - "8001:8000"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  users:
+    build: ./services/users-java
+    container_name: users
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DB: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
