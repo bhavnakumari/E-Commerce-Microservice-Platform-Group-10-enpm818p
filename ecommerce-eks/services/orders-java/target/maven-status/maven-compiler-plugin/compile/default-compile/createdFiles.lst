@@ -1,3 +1,4 @@
+com/shop/orders/UserClient$UserResponse.class
 com/shop/orders/PaymentClient.class
 com/shop/orders/PaymentClient$PaymentResponse.class
 com/shop/orders/OrderEntity.class
@@ -10,7 +11,9 @@ com/shop/orders/OrdersServiceApplication.class
 com/shop/orders/OrderDtos$OrderItemResponse.class
 com/shop/orders/OrderItemEntity.class
 com/shop/orders/OrderDtos.class
+com/shop/orders/UserClient.class
 com/shop/orders/InventoryClient$InventoryResponse.class
+com/shop/orders/OrderDtos$OrderResponse$ShippingAddress.class
 com/shop/orders/InventoryClient.class
 com/shop/orders/OrderRepository.class
 com/shop/orders/OrdersController.class

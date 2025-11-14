@@ -3,12 +3,10 @@ package com.shop.users;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
-
+import java.nio.charset.StandardCharsets;
 import static com.shop.users.UserDtos.RegisterRequest;
 import static com.shop.users.UserDtos.UserResponse;
 import static com.shop.users.UserDtos.LoginRequest;
@@ -33,14 +31,26 @@ public class UserController {
         );
     }
 
+    @GetMapping("/{id}")
+    public UserResponse getUserById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .map(UserResponse::fromEntity)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+    }
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@RequestBody RegisterRequest request) {
         // basic validation
         if (request.email() == null || request.email().isBlank()
                 || request.password() == null || request.password().isBlank()
-                || request.fullName() == null || request.fullName().isBlank()) {
-            throw new IllegalArgumentException("email, password, and fullName are required");
+                || request.fullName() == null || request.fullName().isBlank()
+                || request.street() == null || request.street().isBlank()
+                || request.city() == null || request.city().isBlank()
+                || request.state() == null || request.state().isBlank()
+                || request.postalCode() == null || request.postalCode().isBlank()
+                || request.country() == null || request.country().isBlank()) {
+            throw new IllegalArgumentException("email, password, fullName, and address fields are required");
         }
 
         // check if email already exists
@@ -50,12 +60,17 @@ public class UserController {
                 });
 
         String hashed = passwordEncoder.encode(request.password());
-        UserEntity entity = new UserEntity(
-                request.email(),
-                hashed,
-                request.fullName(),
-                Instant.now()
-        );
+
+        UserEntity entity = new UserEntity();
+        entity.setEmail(request.email());
+        entity.setPasswordHash(hashed);
+        entity.setFullName(request.fullName());
+        entity.setStreet(request.street());
+        entity.setCity(request.city());
+        entity.setState(request.state());
+        entity.setPostalCode(request.postalCode());
+        entity.setCountry(request.country());
+        entity.setCreatedAt(Instant.now());
 
         UserEntity saved = userRepository.save(entity);
         return UserResponse.fromEntity(saved);
@@ -78,7 +93,6 @@ public class UserController {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        // Very simple opaque token (Base64 of userId:email:timestamp)
         String payload = user.getId() + ":" + user.getEmail() + ":" + Instant.now().getEpochSecond();
         String token = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
 

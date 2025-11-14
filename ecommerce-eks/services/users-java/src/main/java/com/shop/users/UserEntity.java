@@ -22,16 +22,46 @@ public class UserEntity {
     @Column(nullable = false, length = 120)
     private String fullName;
 
+    // --- Single shipping address fields ---
+    @Column(nullable = false, length = 200)
+    private String street;
+
+    @Column(nullable = false, length = 100)
+    private String city;
+
+    @Column(nullable = false, length = 100)
+    private String state;
+
+    @Column(nullable = false, length = 20, name = "postal_code")
+    private String postalCode;
+
+    @Column(nullable = false, length = 100)
+    private String country;
+
     @Column(nullable = false)
     private Instant createdAt;
 
     public UserEntity() {
     }
 
-    public UserEntity(String email, String passwordHash, String fullName, Instant createdAt) {
+    // Optional convenience constructor (not required now)
+    public UserEntity(String email,
+                      String passwordHash,
+                      String fullName,
+                      String street,
+                      String city,
+                      String state,
+                      String postalCode,
+                      String country,
+                      Instant createdAt) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.postalCode = postalCode;
+        this.country = country;
         this.createdAt = createdAt;
     }
 
@@ -53,6 +83,26 @@ public class UserEntity {
         return fullName;
     }
 
+    public String getStreet() {
+        return street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -71,6 +121,26 @@ public class UserEntity {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public void setCreatedAt(Instant createdAt) {

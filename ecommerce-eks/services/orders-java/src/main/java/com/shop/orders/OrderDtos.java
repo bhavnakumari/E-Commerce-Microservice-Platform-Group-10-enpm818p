@@ -45,19 +45,38 @@ public class OrderDtos {
             Long userId,
             String status,
             Instant createdAt,
-            List<OrderItemResponse> items
+            List<OrderItemResponse> items,
+            ShippingAddress shippingAddress
     ) {
         public static OrderResponse fromEntity(OrderEntity entity) {
             List<OrderItemResponse> itemResponses = entity.getItems().stream()
                     .map(OrderItemResponse::fromEntity)
                     .toList();
+
+            ShippingAddress addr = new ShippingAddress(
+                    entity.getStreet(),
+                    entity.getCity(),
+                    entity.getState(),
+                    entity.getPostalCode(),
+                    entity.getCountry()
+            );
+
             return new OrderResponse(
                     entity.getId(),
                     entity.getUserId(),
                     entity.getStatus(),
                     entity.getCreatedAt(),
-                    itemResponses
+                    itemResponses,
+                    addr
             );
         }
+
+        public record ShippingAddress(
+                String street,
+                String city,
+                String state,
+                String postalCode,
+                String country
+        ) {}
     }
 }

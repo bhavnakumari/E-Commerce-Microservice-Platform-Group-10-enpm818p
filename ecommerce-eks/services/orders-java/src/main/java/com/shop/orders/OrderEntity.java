@@ -27,6 +27,21 @@ public class OrderEntity {
     @Column(nullable = false)
     private Instant updatedAt;
 
+    @Column(nullable = false, length = 200)
+    private String street;
+
+    @Column(nullable = false, length = 100)
+    private String city;
+
+    @Column(nullable = false, length = 100)
+    private String state;
+
+    @Column(nullable = false, length = 20)
+    private String postalCode;
+
+    @Column(nullable = false, length = 100)
+    private String country;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItemEntity> items = new ArrayList<>();
 
@@ -89,6 +104,21 @@ public class OrderEntity {
     public void setItems(List<OrderItemEntity> items) {
         this.items = items;
     }
+
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+
+    public String getPostalCode() { return postalCode; }
+    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
 
     public void addItem(OrderItemEntity item) {
         items.add(item);
