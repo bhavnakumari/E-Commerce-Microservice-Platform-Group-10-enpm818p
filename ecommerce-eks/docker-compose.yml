@@ -88,3 +88,9 @@ services:
         condition: service_healthy
     ports:
       - "8084:8080"
+
+  payments:
+    build: ./services/payments
+    container_name: payments
+    ports:
+      - "8003:8000"

@@ -6,16 +6,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 import static com.shop.orders.OrderDtos.CreateOrderRequest;
+import static com.shop.orders.OrderDtos.PaymentInfo;
 
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
+    private final PaymentClient paymentClient;
 
-    public OrderService(OrderRepository orderRepository, InventoryClient inventoryClient) {
+    public OrderService(OrderRepository orderRepository,
+                        InventoryClient inventoryClient,
+                        PaymentClient paymentClient) {
         this.orderRepository = orderRepository;
         this.inventoryClient = inventoryClient;
+        this.paymentClient = paymentClient;
     }
 
     @Transactional
@@ -24,7 +29,31 @@ public class OrderService {
             throw new IllegalArgumentException("userId and at least one item are required");
         }
 
-        // 1. Check stock for all items
+        PaymentInfo payment = request.payment();
+        if (payment == null) {
+            throw new IllegalArgumentException("payment information is required");
+        }
+        if (payment.amount() == null || payment.amount() <= 0) {
+            throw new IllegalArgumentException("payment.amount must be > 0");
+        }
+
+        // 1. Charge payment first
+        var payReq = new PaymentClient.PaymentRequest(
+                request.userId(),
+                payment.amount(),
+                payment.currency() != null ? payment.currency() : "USD",
+                payment.cardNumber(),
+                payment.expiryMonth(),
+                payment.expiryYear(),
+                payment.cvv()
+        );
+        var payResp = paymentClient.charge(payReq);
+        if (payResp == null || !"APPROVED".equalsIgnoreCase(payResp.status())) {
+            throw new IllegalStateException("Payment failed: " +
+                    (payResp != null ? payResp.reason() : "no response"));
+        }
+
+        // 2. Check stock for all items
         for (var item : request.items()) {
             if (item.quantity() <= 0) {
                 throw new IllegalArgumentException("Item quantity must be > 0");
@@ -35,14 +64,14 @@ public class OrderService {
             }
         }
 
-        // 2. Decrement stock for all items
+        // 3. Decrement stock for all items
         for (var item : request.items()) {
             int available = inventoryClient.getStock(item.productId());
             int newQty = available - item.quantity();
             inventoryClient.setStock(item.productId(), newQty);
         }
 
-        // 3. Persist order
+        // 4. Persist order as CONFIRMED
         Instant now = Instant.now();
         OrderEntity order = new OrderEntity(
                 request.userId(),

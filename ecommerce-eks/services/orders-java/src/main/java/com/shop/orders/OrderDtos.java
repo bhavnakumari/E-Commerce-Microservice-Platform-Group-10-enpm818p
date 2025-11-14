@@ -11,9 +11,20 @@ public class OrderDtos {
     ) {
     }
 
+    public record PaymentInfo(
+            Double amount,
+            String cardNumber,
+            Integer expiryMonth,
+            Integer expiryYear,
+            String cvv,
+            String currency
+    ) {
+    }
+
     public record CreateOrderRequest(
             Long userId,
-            List<OrderItemRequest> items
+            List<OrderItemRequest> items,
+            PaymentInfo payment
     ) {
     }
 
