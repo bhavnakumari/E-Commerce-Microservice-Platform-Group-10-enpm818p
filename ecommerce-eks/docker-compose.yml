@@ -74,3 +74,17 @@ services:
         condition: service_healthy
     ports:
       - "8002:8000"
+
+  orders:
+    build: ./services/orders-java
+    container_name: orders
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DB: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8084:8080"
