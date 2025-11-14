@@ -79,3 +79,34 @@ mvn clean package -DskipTests
 
 cd ../orders-java
 mvn clean package -DskipTests
+```
+### 🐳 Start All Services with Docker Compose
+
+From ecommerce-eks:
+```bash
+cd ecommerce-eks
+docker compose up --build
+
+```
+Services will be available at:
+   - Users - http://localhost:8083
+   - Products- http://localhost:8001
+   - Inventory - http://localhost:8002
+   - Payments - http://localhost:8003
+   - Orders - http://localhost:8084
+
+### Basic Health Checks
+```bash
+curl http://localhost:8083/api/users/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+curl http://localhost:8003/health
+curl http://localhost:8084/health
+```
+
+
+
+
+
+
+
