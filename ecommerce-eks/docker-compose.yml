@@ -1,0 +1,96 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  products:
+    build: ./services/products
+    container_name: products
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: shop
+      MONGO_PRODUCTS_COLLECTION: products
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  users:
+    build: ./services/users-java
+    container_name: users
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DB: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  inventory:
+    build: ./services/inventory
+    container_name: inventory
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+
+  orders:
+    build: ./services/orders-java
+    container_name: orders
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DB: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8084:8080"
+
+  payments:
+    build: ./services/payments
+    container_name: payments
+    ports:
+      - "8003:8000"

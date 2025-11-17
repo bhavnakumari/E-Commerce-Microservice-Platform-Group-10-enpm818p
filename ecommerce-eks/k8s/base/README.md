@@ -1,0 +1,1 @@
+Base Kubernetes manifests for the `shop` namespace. Overlays apply env-specific patches.
