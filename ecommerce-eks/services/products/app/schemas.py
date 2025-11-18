@@ -10,6 +10,7 @@ class ProductBase(BaseModel):
     price: float = Field(..., gt=0, example=19.99)
     stock: int = Field(..., ge=0, example=50)
     category: Optional[str] = Field(None, example="apparel")
+    imageUrl: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop")
 
 
 class ProductCreate(ProductBase):
@@ -23,6 +24,7 @@ class ProductUpdate(BaseModel):
     price: Optional[float] = Field(None, gt=0)
     stock: Optional[int] = Field(None, ge=0)
     category: Optional[str] = None
+    imageUrl: Optional[str] = None
 
 
 class Product(ProductBase):

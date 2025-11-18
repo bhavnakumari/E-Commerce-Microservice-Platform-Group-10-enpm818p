@@ -4,7 +4,7 @@ RUN useradd -m app
 WORKDIR /app
 
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir fastapi "uvicorn[standard]" motor pymongo
+RUN pip install --no-cache-dir fastapi "uvicorn[standard]" motor pymongo httpx
 
 COPY app ./app
 

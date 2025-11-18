@@ -6,5 +6,7 @@ dependencies = [
   "fastapi",
   "uvicorn[standard]",
   "pymongo",
-  "redis"
+  "motor",
+  "redis",
+  "httpx"
 ]

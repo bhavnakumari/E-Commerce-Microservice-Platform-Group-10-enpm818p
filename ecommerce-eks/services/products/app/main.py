@@ -1,7 +1,9 @@
 import os
 from uuid import uuid4
+import httpx
 
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
 
@@ -13,10 +15,22 @@ app = FastAPI(
     description="Products microservice backed by MongoDB with simple string IDs.",
 )
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ---- Mongo config ----
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017")
 MONGO_DB = os.getenv("MONGO_DB", "shop")
 MONGO_COLLECTION = os.getenv("MONGO_PRODUCTS_COLLECTION", "products")
+
+# ---- Inventory service config ----
+INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://inventory:8000")
 
 mongo_client: AsyncIOMotorClient | None = None
 
@@ -33,16 +47,36 @@ def get_collection():
     return client[MONGO_DB][MONGO_COLLECTION]
 
 
-def serialize_product(doc: dict) -> dict:
-    """Convert Mongo document to dict matching Product schema."""
+async def get_inventory_stock(product_id: str) -> int:
+    """Fetch real-time stock from inventory service."""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{INVENTORY_SERVICE_URL}/api/inventory/{product_id}", timeout=2.0)
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("quantity", 0)
+            return 0
+    except Exception as e:
+        # If inventory service is down, return 0
+        print(f"Failed to fetch inventory for {product_id}: {e}")
+        return 0
+
+
+async def serialize_product(doc: dict) -> dict:
+    """Convert Mongo document to dict matching Product schema with real-time inventory."""
+    product_id = doc.get("id")
+    # Fetch real-time stock from inventory service
+    stock = await get_inventory_stock(product_id)
+
     return {
-        "id": doc.get("id"),  # our own stable string ID
+        "id": product_id,
         "name": doc.get("name"),
         "sku": doc.get("sku"),
         "description": doc.get("description"),
         "price": doc.get("price"),
-        "stock": doc.get("stock"),
+        "stock": stock,  # Use real-time stock from inventory service
         "category": doc.get("category"),
+        "imageUrl": doc.get("imageUrl"),
     }
 
 
@@ -65,7 +99,12 @@ async def list_products():
     coll = get_collection()
     cursor = coll.find({})
     docs = await cursor.to_list(length=1000)
-    return [serialize_product(d) for d in docs]
+    # Serialize products with real-time inventory
+    products = []
+    for doc in docs:
+        product = await serialize_product(doc)
+        products.append(product)
+    return products
 
 
 # --------- CREATE PRODUCT ---------
@@ -83,7 +122,7 @@ async def create_product(payload: ProductCreate):
 
     await coll.insert_one(data)
     doc = await coll.find_one({"id": data["id"]})
-    return serialize_product(doc)
+    return await serialize_product(doc)
 
 
 # --------- GET BY ID ---------
@@ -93,7 +132,7 @@ async def get_product(product_id: str):
     doc = await coll.find_one({"id": product_id})
     if not doc:
         raise HTTPException(status_code=404, detail="Product not found")
-    return serialize_product(doc)
+    return await serialize_product(doc)
 
 
 # --------- UPDATE PRODUCT ---------
@@ -128,7 +167,7 @@ async def update_product(product_id: str, payload: ProductUpdate):
     if not doc:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    return serialize_product(doc)
+    return await serialize_product(doc)
 
 # --------- DELETE PRODUCT ---------
 @app.delete("/api/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
