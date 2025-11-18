@@ -1,5 +1,7 @@
 com/shop/orders/UserClient$UserResponse.class
 com/shop/orders/PaymentClient.class
+com/shop/orders/WebConfig$1.class
+com/shop/orders/WebConfig.class
 com/shop/orders/PaymentClient$PaymentResponse.class
 com/shop/orders/OrderEntity.class
 com/shop/orders/OrderDtos$OrderResponse.class

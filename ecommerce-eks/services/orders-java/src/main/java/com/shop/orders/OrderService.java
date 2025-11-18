@@ -112,4 +112,8 @@ public class OrderService {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
     }
+
+    public java.util.List<OrderEntity> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
 }

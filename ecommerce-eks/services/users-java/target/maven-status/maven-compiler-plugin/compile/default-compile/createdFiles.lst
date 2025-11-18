@@ -1,4 +1,5 @@
 com/shop/users/UserDtos$UserResponse.class
+com/shop/users/WebConfig$1.class
 com/shop/users/UserDtos$LoginResponse.class
 com/shop/users/UserDtos$LoginRequest.class
 com/shop/users/UserDtos$RegisterRequest.class
@@ -7,3 +8,4 @@ com/shop/users/UsersServiceApplication.class
 com/shop/users/UserRepository.class
 com/shop/users/UserDtos.class
 com/shop/users/UserEntity.class
+com/shop/users/WebConfig.class

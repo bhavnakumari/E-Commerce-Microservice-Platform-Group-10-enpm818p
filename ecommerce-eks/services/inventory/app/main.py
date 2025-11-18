@@ -1,11 +1,21 @@
 import os
 import redis
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Inventory Service",
     version="0.2.0",
     description="Inventory microservice backed by Redis.",
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")

@@ -1,11 +1,21 @@
 import uuid
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, constr
 
 app = FastAPI(
     title="Payment Service",
     version="0.1.0",
     description="Static payment microservice with a single test card.",
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 TEST_CARD = "4242424242424242"
