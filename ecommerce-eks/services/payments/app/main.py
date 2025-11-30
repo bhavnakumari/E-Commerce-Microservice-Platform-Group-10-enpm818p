@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, constr
 
 app = FastAPI(
+    root_path="/inventory",
     title="Payment Service",
     version="0.1.0",
     description="Static payment microservice with a single test card.",
