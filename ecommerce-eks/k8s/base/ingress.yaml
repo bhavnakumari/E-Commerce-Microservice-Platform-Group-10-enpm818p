@@ -4,6 +4,7 @@ metadata:
   name: shop-ingress
   namespace: shop
   annotations:
+    kubernetes.io/ingress.class: alb           # ⬅️ add this
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 spec:
