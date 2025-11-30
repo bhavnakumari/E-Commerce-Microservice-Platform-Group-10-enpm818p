@@ -18,7 +18,7 @@ public class OrdersController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/health")
+    @GetMapping("/health, /orders/health")
     public Map<String, String> health() {
         return Map.of(
                 "status", "ok",
