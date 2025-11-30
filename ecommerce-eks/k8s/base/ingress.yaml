@@ -4,14 +4,21 @@ metadata:
   name: shop-ingress
   namespace: shop
   annotations:
-    kubernetes.io/ingress.class: alb           # ⬅️ add this
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 spec:
-  ingressClassName: alb            # 👈 add this line
+  ingressClassName: alb
   rules:
     - http:
         paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: storefront-service
+                port:
+                  number: 80
+
           - path: /products
             pathType: Prefix
             backend:
@@ -19,6 +26,7 @@ spec:
                 name: products-service
                 port:
                   number: 8001
+
           - path: /inventory
             pathType: Prefix
             backend:
@@ -26,6 +34,7 @@ spec:
                 name: inventory-service
                 port:
                   number: 8002
+
           - path: /orders
             pathType: Prefix
             backend:
@@ -33,6 +42,7 @@ spec:
                 name: orders-service
                 port:
                   number: 8084
+
           - path: /users
             pathType: Prefix
             backend:
@@ -40,6 +50,7 @@ spec:
                 name: users-service
                 port:
                   number: 8083
+
           - path: /payments
             pathType: Prefix
             backend:

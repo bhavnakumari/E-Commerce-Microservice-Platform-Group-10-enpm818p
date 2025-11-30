@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: storefront
+  template:
+    metadata:
+      labels:
+        app: storefront
+    spec:
+      containers:
+        - name: storefront
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-storefront:latest
+          ports:
+            - containerPort: 80
+          # If your React build uses env vars at runtime via Nginx, add them here
+          # env:
+          #   - name: REACT_APP_API_BASE_URL
+          #     value: "http://users-service:8083"

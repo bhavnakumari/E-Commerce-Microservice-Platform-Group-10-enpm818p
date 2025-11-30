@@ -71,6 +71,14 @@ jobs:
           docker build -t "$IMAGE" services/payments
           docker push "$IMAGE"
 
+      # storefront (React + Nginx)
+      - name: Build & push storefront image
+        run: |
+          cd ecommerce-eks
+          IMAGE="$ECR_REGISTRY/ecommerce-storefront:$IMAGE_TAG"
+          docker build -t "$IMAGE" services/storefront
+          docker push "$IMAGE"
+
       # ========= CONFIGURE KUBECTL =========
 
       - name: Configure kubectl for EKS
@@ -102,6 +110,10 @@ jobs:
           # payments
           kubectl -n "$K8S_NAMESPACE" set image deployment/payments-deployment \
             payments="$ECR_REGISTRY/ecommerce-payments:$IMAGE_TAG"
+          
+          # storefront
+          kubectl -n "$K8S_NAMESPACE" set image deployment/storefront-deployment \
+            storefront="$ECR_REGISTRY/ecommerce-storefront:$IMAGE_TAG"
 
       - name: Wait for rollouts
         run: |
@@ -110,3 +122,4 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" rollout status deployment/inventory-deployment
           kubectl -n "$K8S_NAMESPACE" rollout status deployment/orders-deployment
           kubectl -n "$K8S_NAMESPACE" rollout status deployment/payments-deployment
+          kubectl -n "$K8S_NAMESPACE" rollout status deployment/storefront-deployment   
