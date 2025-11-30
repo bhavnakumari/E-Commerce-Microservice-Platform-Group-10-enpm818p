@@ -1,5 +1,3 @@
-# Multi-stage build for React + NGINX
-
 # Stage 1: Build the React application
 FROM node:18-alpine AS build
 
@@ -14,7 +12,7 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the React app
+# Build the production bundle
 RUN npm run build
 
 # Stage 2: Serve with NGINX
@@ -26,8 +24,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built React app from build stage
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 80
 EXPOSE 80
 
-# Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

@@ -10,6 +10,7 @@ import static com.shop.orders.OrderDtos.OrderResponse;
 
 @RestController
 @CrossOrigin(origins = "*")
+@RequestMapping("/api/orders")
 public class OrdersController {
 
     private final OrderService orderService;
@@ -26,20 +27,28 @@ public class OrdersController {
         );
     }
 
-    @PostMapping("/api/orders")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         var order = orderService.createOrder(request);
         return OrderResponse.fromEntity(order);
     }
 
-    @GetMapping("/api/orders/{id}")
+    @GetMapping
+    public java.util.List<OrderResponse> getAllOrders() {
+        var orders = orderService.getAllOrders();
+        return orders.stream()
+                .map(OrderResponse::fromEntity)
+                .toList();
+    }
+
+    @GetMapping("/{id}")
     public OrderResponse getOrder(@PathVariable Long id) {
         var order = orderService.getOrder(id);
         return OrderResponse.fromEntity(order);
     }
 
-    @GetMapping("/api/orders/user/{userId}")
+    @GetMapping("/user/{userId}")
     public java.util.List<OrderResponse> getOrdersByUserId(@PathVariable Long userId) {
         var orders = orderService.getOrdersByUserId(userId);
         return orders.stream()

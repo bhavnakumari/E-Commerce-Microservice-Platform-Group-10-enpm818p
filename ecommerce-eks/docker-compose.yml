@@ -94,3 +94,15 @@ services:
     container_name: payments
     ports:
       - "8003:8000"
+
+  storefront:
+    build:
+      context: ./services/storefront
+    ports:
+      - "3000:80"
+    depends_on:
+      - users
+      - products
+      - inventory
+      - orders
+      - payments

@@ -2,28 +2,36 @@ import { ordersApi } from './api';
 import { Order, CreateOrderRequest } from '../types';
 
 export const ordersService = {
-  // Create a new order
-  createOrder: async (orderData: CreateOrderRequest): Promise<Order> => {
-    const response = await ordersApi.post<Order>('/api/orders', orderData);
+  // POST /api/orders
+  createOrder: async (order: CreateOrderRequest): Promise<Order> => {
+    const response = await ordersApi.post<Order>('', order);   // ✅ /api/orders
     return response.data;
   },
 
-  // Get order by ID
-  getOrder: async (orderId: number): Promise<Order> => {
-    const response = await ordersApi.get<Order>(`/api/orders/${orderId}`);
+  // GET /api/orders/:id
+  getOrder: async (orderId: string | number): Promise<Order> => {
+    const response = await ordersApi.get<Order>(`/${orderId}`);
     return response.data;
   },
 
-  // Get all orders for current user
-  getUserOrders: async (userId: number): Promise<Order[]> => {
-    // Note: This endpoint might not exist in the backend, we may need to implement filtering client-side
-    // For now, we'll return an empty array or implement once the backend supports it
-    try {
-      const response = await ordersApi.get<Order[]>(`/api/orders/user/${userId}`);
-      return response.data;
-    } catch (error) {
-      console.warn('User orders endpoint not available:', error);
-      return [];
-    }
+  // GET /api/orders
+  getAllOrders: async (): Promise<Order[]> => {
+    const response = await ordersApi.get<Order[]>('');
+    return response.data;
+  },
+
+  // Get orders for a user (frontend filter for now)
+  getUserOrders: async (userId: string | number): Promise<Order[]> => {
+    const all = await ordersService.getAllOrders();
+    return all.filter(o => String((o as any).userId) === String(userId));
+  },
+
+  // PATCH /api/orders/:id/status
+  updateOrderStatus: async (
+    orderId: string | number,
+    updates: any
+  ): Promise<Order> => {
+    const response = await ordersApi.patch<Order>(`/${orderId}/status`, updates);
+    return response.data;
   },
 };
