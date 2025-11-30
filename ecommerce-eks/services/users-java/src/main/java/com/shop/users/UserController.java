@@ -14,7 +14,7 @@ import static com.shop.users.UserDtos.LoginResponse;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
 public class UserController {
 
     private final UserRepository userRepository;

@@ -1,7 +1,5 @@
 com/shop/users/UserDtos$UserResponse.class
-com/shop/users/WebConfig$1.class
 com/shop/users/UserDtos$LoginResponse.class
-com/shop/users/HealthController.class
 com/shop/users/UserDtos$LoginRequest.class
 com/shop/users/UserDtos$RegisterRequest.class
 com/shop/users/UserController.class

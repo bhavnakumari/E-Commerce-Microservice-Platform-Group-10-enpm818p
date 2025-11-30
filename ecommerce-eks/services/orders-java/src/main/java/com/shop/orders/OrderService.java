@@ -7,6 +7,7 @@ import java.time.Instant;
 
 import static com.shop.orders.OrderDtos.CreateOrderRequest;
 import static com.shop.orders.OrderDtos.PaymentInfo;
+import java.util.List;
 
 
 @Service
@@ -115,5 +116,9 @@ public class OrderService {
 
     public java.util.List<OrderEntity> getOrdersByUserId(Long userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    public List<OrderEntity> getAllOrders() {
+        return orderRepository.findAll();
     }
 }

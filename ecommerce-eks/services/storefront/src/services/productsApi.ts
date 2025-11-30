@@ -1,39 +1,33 @@
 import { productsApi } from './api';
 import { Product, CreateProductRequest, UpdateProductRequest } from '../types';
 
+// GET /api/products
+export function getProducts() {
+  return productsApi.get('');  // -> /api/products
+}
+
 export const productsService = {
-  // Get all products
   getAllProducts: async (): Promise<Product[]> => {
-    const response = await productsApi.get<Product[]>('/api/products');
+    const response = await productsApi.get<Product[]>('');
     return response.data;
   },
 
-  // Get single product by ID
   getProduct: async (productId: string): Promise<Product> => {
-    const response = await productsApi.get<Product>(`/api/products/${productId}`);
+    const response = await productsApi.get<Product>(`/${productId}`);
     return response.data;
   },
 
-  // Create new product
   createProduct: async (product: CreateProductRequest): Promise<Product> => {
-    const response = await productsApi.post<Product>('/api/products', product);
+    const response = await productsApi.post<Product>('', product);
     return response.data;
   },
 
-  // Update product
   updateProduct: async (productId: string, updates: UpdateProductRequest): Promise<Product> => {
-    const response = await productsApi.patch<Product>(`/api/products/${productId}`, updates);
+    const response = await productsApi.patch<Product>(`/${productId}`, updates);
     return response.data;
   },
 
-  // Delete product
   deleteProduct: async (productId: string): Promise<void> => {
-    await productsApi.delete(`/api/products/${productId}`);
-  },
-
-  // Get products by category
-  getProductsByCategory: async (category: string): Promise<Product[]> => {
-    const allProducts = await productsService.getAllProducts();
-    return allProducts.filter(p => p.category === category);
+    await productsApi.delete(`/${productId}`);
   },
 };

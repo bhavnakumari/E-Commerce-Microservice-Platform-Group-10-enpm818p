@@ -2,11 +2,11 @@ import axios from 'axios';
 
 // Base API URLs for each microservice
 export const API_URLS = {
-  USERS: process.env.REACT_APP_USERS_API || 'http://localhost:8083',
-  PRODUCTS: process.env.REACT_APP_PRODUCTS_API || 'http://localhost:8001',
-  INVENTORY: process.env.REACT_APP_INVENTORY_API || 'http://localhost:8002',
-  ORDERS: process.env.REACT_APP_ORDERS_API || 'http://localhost:8084',
-  PAYMENTS: process.env.REACT_APP_PAYMENTS_API || 'http://localhost:8003',
+  USERS: '/api/users',
+  PRODUCTS: '/api/products',
+  INVENTORY: '/api/inventory',
+  ORDERS: '/api/orders',
+  PAYMENTS: '/api/payments',
 };
 
 // Create axios instances for each service
@@ -62,3 +62,12 @@ addAuthInterceptor(productsApi);
 addAuthInterceptor(inventoryApi);
 addAuthInterceptor(ordersApi);
 addAuthInterceptor(paymentsApi);
+
+ordersApi.interceptors.request.use((config) => {
+  console.log('ORDERS REQUEST:', {
+    baseURL: config.baseURL,
+    url: config.url,
+    full: (config.baseURL || '') + (config.url || ''),
+  });
+  return config;
+});

@@ -13,7 +13,7 @@ const OrderSuccess: React.FC = () => {
       if (!orderId) return;
 
       try {
-        const orderData = await ordersService.getOrder(parseInt(orderId));
+        const orderData = await ordersService.getOrder(orderId);
         setOrder(orderData);
       } catch (err) {
         console.error('Failed to fetch order:', err);
