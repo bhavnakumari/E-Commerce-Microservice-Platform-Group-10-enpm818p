@@ -10,3 +10,6 @@ resources:
   - inventory.yaml
   - orders.yaml
   - payments.yaml
+  - mysql.yaml
+  - redis.yaml
+  - mongo.yaml
