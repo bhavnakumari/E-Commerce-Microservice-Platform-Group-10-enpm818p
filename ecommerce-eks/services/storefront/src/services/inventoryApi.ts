@@ -4,7 +4,7 @@ import { InventoryItem } from '../types';
 export const inventoryService = {
   // Get inventory for a product
   getInventory: async (productId: string): Promise<InventoryItem> => {
-    const response = await inventoryApi.get<InventoryItem>(`/api/inventory/${productId}`);
+    const response = await inventoryApi.get<InventoryItem>(`/${productId}`);
     return response.data;
   },
 
