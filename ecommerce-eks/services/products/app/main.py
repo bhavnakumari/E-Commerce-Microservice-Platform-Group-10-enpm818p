@@ -10,6 +10,7 @@ from pymongo import ReturnDocument
 from .schemas import Product, ProductCreate, ProductUpdate
 
 app = FastAPI(
+    root_path="/products",
     title="Products Service",
     version="0.4.0",
     description="Products microservice backed by MongoDB with simple string IDs.",

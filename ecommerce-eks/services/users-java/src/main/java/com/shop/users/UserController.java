@@ -24,7 +24,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/health")
+    @GetMapping("/health, /users/health")
     public Map<String, String> health() {
         return Map.of(
                 "status", "ok",

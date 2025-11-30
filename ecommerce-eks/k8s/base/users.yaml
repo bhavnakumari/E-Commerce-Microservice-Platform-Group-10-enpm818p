@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  labels:
+    app: users
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MYSQL_HOST
+              value: "mysql"
+            - name: MYSQL_DB
+              value: "shop"
+            - name: MYSQL_USER
+              value: "shop"
+            - name: MYSQL_PASSWORD
+              value: "shop"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+spec:
+  selector:
+    app: users
+  ports:
+    - port: 8083
+      targetPort: 8080

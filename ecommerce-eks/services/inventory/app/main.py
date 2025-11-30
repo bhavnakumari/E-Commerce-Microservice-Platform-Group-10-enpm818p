@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
+    root_path="/inventory",
     title="Inventory Service",
     version="0.2.0",
     description="Inventory microservice backed by Redis.",
