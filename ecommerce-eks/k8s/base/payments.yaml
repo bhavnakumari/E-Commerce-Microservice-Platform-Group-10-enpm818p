@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-deployment
+  labels:
+    app: payments
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-payments:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+  labels:
+    app: payments
+spec:
+  selector:
+    app: payments
+  ports:
+    - port: 8003
+      targetPort: 8000
+  type: ClusterIP
