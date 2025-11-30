@@ -13,5 +13,4 @@ resources:
   - mysql.yaml
   - redis.yaml
   - mongo.yaml
-  - storefront-deployment.yaml
-  - storefront-service.yaml
+  - storefront.yaml  
