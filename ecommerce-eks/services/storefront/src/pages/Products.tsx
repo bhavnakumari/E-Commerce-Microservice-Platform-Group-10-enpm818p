@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { productsService } from '../services/productsApi';
 import { Product } from '../types';
 import ProductCard from '../components/ProductCard';
@@ -12,29 +13,35 @@ const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [categories, setCategories] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await productsService.getAllProducts();
-        setProducts(data);
-        setFilteredProducts(data);
+  const location = useLocation();
 
-        // Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(data.map((p) => p.category).filter(Boolean) as string[])
-        );
-        setCategories(uniqueCategories);
-      } catch (err) {
-        setError('Failed to load products');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await productsService.getAllProducts();
+      setProducts(data);
+      setFilteredProducts(data);
 
-    fetchProducts();
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Set(data.map((p) => p.category).filter(Boolean) as string[])
+      );
+      setCategories(uniqueCategories);
+      setError('');
+    } catch (err) {
+      setError('Failed to load products');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  // Refetch whenever we navigate to this route
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts, location.pathname]);
+
+  // Apply filters whenever search/category/products change
   useEffect(() => {
     let filtered = products;
 
@@ -61,7 +68,10 @@ const Products: React.FC = () => {
       <section className="relative px-8 lg:px-16 py-20 overflow-hidden mesh-gradient">
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-spotify-green/20 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+          <div
+            className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse-slow"
+            style={{ animationDelay: '1s' }}
+          />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto text-center">
@@ -76,8 +86,13 @@ const Products: React.FC = () => {
             <span className="gradient-text">All Products</span>
           </h1>
 
-          <p className="text-xl lg:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '100ms' }}>
-            Discover over <span className="text-spotify-green font-bold">{products.length}+ premium products</span> across multiple categories
+          <p
+            className="text-xl lg:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto animate-fade-in"
+            style={{ animationDelay: '100ms' }}
+          >
+            Discover over{' '}
+            <span className="text-spotify-green font-bold">{products.length}+ premium products</span> across
+            multiple categories
           </p>
 
           {/* Search Bar - Premium */}
@@ -85,7 +100,12 @@ const Products: React.FC = () => {
             <div className="relative">
               <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
                 <svg className="w-6 h-6 text-spotify-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
               <input
@@ -143,13 +163,24 @@ const Products: React.FC = () => {
                   </button>
                 );
               })}
+
+              {/* Optional: refresh button near filters */}
+              <button
+                onClick={fetchProducts}
+                className="glass px-4 py-2 rounded-full border border-spotify-green/40 text-sm text-spotify-green hover:border-spotify-green hover:text-white transition-all"
+              >
+                ↻ Refresh
+              </button>
             </div>
 
             {/* Results Count */}
             <div className="glass-strong px-6 py-3 rounded-full border border-spotify-green/30">
               <span className="text-spotify-text">Showing </span>
               <span className="text-spotify-green font-bold text-lg">{filteredProducts.length}</span>
-              <span className="text-spotify-text"> {filteredProducts.length === 1 ? 'product' : 'products'}</span>
+              <span className="text-spotify-text">
+                {' '}
+                {filteredProducts.length === 1 ? 'product' : 'products'}
+              </span>
             </div>
           </div>
 
@@ -171,12 +202,12 @@ const Products: React.FC = () => {
               <div className="text-8xl mb-6">😕</div>
               <h3 className="text-3xl font-bold text-white mb-4">Oops! Something went wrong</h3>
               <p className="text-red-400 text-xl mb-2">{error}</p>
-              <p className="text-spotify-text mb-8">Please try refreshing the page</p>
+              <p className="text-spotify-text mb-8">Please try refreshing the products</p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={fetchProducts}
                 className="btn-gradient text-black font-bold px-8 py-4 rounded-full hover:scale-105 transition-all"
               >
-                Refresh Page
+                Refresh Products
               </button>
             </div>
           ) : filteredProducts.length === 0 ? (
@@ -210,7 +241,6 @@ const Products: React.FC = () => {
                 ))}
               </div>
 
-              {/* Load More hint (if you want to add pagination later) */}
               {filteredProducts.length > 20 && (
                 <div className="mt-16 text-center animate-fade-in">
                   <p className="text-spotify-text text-lg mb-4">
@@ -218,7 +248,11 @@ const Products: React.FC = () => {
                   </p>
                   <div className="inline-flex items-center gap-2 text-spotify-green">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <span className="font-semibold">All products loaded</span>
                   </div>
