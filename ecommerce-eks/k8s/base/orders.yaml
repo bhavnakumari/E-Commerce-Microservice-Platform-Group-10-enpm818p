@@ -31,6 +31,15 @@ spec:
 
             - name: PAYMENTS_SERVICE_URL
               value: "http://payments-service:8003"
+
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "shop"
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "shop"
 ---
 apiVersion: v1
 kind: Service
