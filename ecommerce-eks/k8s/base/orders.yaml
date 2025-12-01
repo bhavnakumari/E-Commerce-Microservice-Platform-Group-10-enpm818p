@@ -35,6 +35,9 @@ spec:
             - name: PAYMENT_BASE_URL
               value: "http://payments-service:8003"
 
+            - name: USERS_BASE_URL
+              value: "http://users-service:8083"
+
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:mysql://mysql:3306/shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 
@@ -43,6 +46,9 @@ spec:
 
             - name: SPRING_DATASOURCE_PASSWORD
               value: "shop"
+
+            - name: INVENTORY_BASE_URL
+              value: "http://inventory-service:8002"
 ---
 apiVersion: v1
 kind: Service

@@ -21,10 +21,10 @@ export const ordersService = {
   },
 
   // Get orders for a user (frontend filter for now)
-  getUserOrders: async (userId: string | number): Promise<Order[]> => {
-    const all = await ordersService.getAllOrders();
-    return all.filter(o => String((o as any).userId) === String(userId));
-  },
+    getUserOrders: async (userId: string | number): Promise<Order[]> => {
+      const response = await ordersApi.get<Order[]>(`/user/${userId}`);
+      return response.data;
+    },
 
   // PATCH /api/orders/:id/status
   updateOrderStatus: async (
