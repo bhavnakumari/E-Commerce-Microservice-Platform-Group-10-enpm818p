@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECR repositories for E-Commerce Microservice Platform
+
+Resources:
+  ProductsRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-products
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  UsersRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-users
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  InventoryRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-inventory
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  OrdersRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-orders
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  PaymentsRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-payments
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  StorefrontRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: ecommerce-storefront
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+Outputs:
+  ProductsRepoUri:
+    Description: URI for products repository
+    Value: !GetAtt ProductsRepository.RepositoryUri
+    Export:
+      Name: ecommerce-products-repo-uri
+
+  UsersRepoUri:
+    Description: URI for users repository
+    Value: !GetAtt UsersRepository.RepositoryUri
+    Export:
+      Name: ecommerce-users-repo-uri
+
+  InventoryRepoUri:
+    Description: URI for inventory repository
+    Value: !GetAtt InventoryRepository.RepositoryUri
+    Export:
+      Name: ecommerce-inventory-repo-uri
+
+  OrdersRepoUri:
+    Description: URI for orders repository
+    Value: !GetAtt OrdersRepository.RepositoryUri
+    Export:
+      Name: ecommerce-orders-repo-uri
+
+  PaymentsRepoUri:
+    Description: URI for payments repository
+    Value: !GetAtt PaymentsRepository.RepositoryUri
+    Export:
+      Name: ecommerce-payments-repo-uri
+
+  StorefrontRepoUri:
+    Description: URI for storefront repository
+    Value: !GetAtt StorefrontRepository.RepositoryUri
+    Export:
+      Name: ecommerce-storefront-repo-uri

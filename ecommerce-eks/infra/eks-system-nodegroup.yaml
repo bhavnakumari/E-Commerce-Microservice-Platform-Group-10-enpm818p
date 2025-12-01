@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: System NodeGroup for EKS system-level workloads.
+
+Parameters:
+
+  ClusterName:
+    Type: String
+    Default: ecommerce-eks-cluster
+
+  NodeGroupName:
+    Type: String
+    Default: system
+
+  InstanceType:
+    Type: String
+    Default: t3.small
+
+  DesiredCapacity:
+    Type: Number
+    Default: 1
+
+  MinSize:
+    Type: Number
+    Default: 1
+
+  MaxSize:
+    Type: Number
+    Default: 3
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+
+  NodeSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+
+
+Resources:
+
+  SystemNodeInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ClusterName}-system-node-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+
+  SystemLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Sub "${NodeGroupName}-lt"
+      LaunchTemplateData:
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref NodeSecurityGroupId
+
+        BlockDeviceMappings:
+          - DeviceName: "/dev/xvda"
+            Ebs:
+              VolumeSize: 30
+              VolumeType: gp3
+
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: !Sub "${ClusterName}-system-node"
+              - Key: node-type
+                Value: system
+              - Key: environment
+                Value: production
+              - Key: !Sub "kubernetes.io/cluster/${ClusterName}"
+                Value: owned
+
+  SystemNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !Ref ClusterName
+      NodegroupName: !Ref NodeGroupName
+      NodeRole: !GetAtt SystemNodeInstanceRole.Arn
+
+      ScalingConfig:
+        MinSize: !Ref MinSize
+        DesiredSize: !Ref DesiredCapacity
+        MaxSize: !Ref MaxSize
+
+      Subnets:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+      LaunchTemplate:
+        Id: !Ref SystemLaunchTemplate
+        Version: !GetAtt SystemLaunchTemplate.LatestVersionNumber
+
+      Tags:
+        node-type: system
+        workload: system
+        environment: production
+
+Outputs:
+  SystemNodeGroupName:
+    Value: !Ref SystemNodeGroup
+    Export:
+      Name: SystemNodeGroupName
+
+  SystemNodeRoleArn:
+    Value: !GetAtt SystemNodeInstanceRole.Arn
+    Export:
+      Name: SystemNodeInstanceRoleArn
