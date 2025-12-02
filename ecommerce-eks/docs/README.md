@@ -7,3 +7,4 @@
 - [ ] ECR images with tags/SHAs
 - [ ] ExternalSecret synced from AWS Secrets Manager
 - [ ] NetworkPolicies in effect
+- [ ] 
