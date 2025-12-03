@@ -68,4 +68,5 @@ async def charge(request: PaymentRequest):
             status="DECLINED",
             transactionId=tx_id,
             reason="Card declined by static rules",
+
         )
