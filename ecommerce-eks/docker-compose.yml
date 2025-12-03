@@ -14,9 +14,9 @@ services:
     build: ./services/products
     container_name: products
     environment:
-      MONGO_URI: mongodb://mongo:27017
-      MONGO_DB: shop
-      MONGO_PRODUCTS_COLLECTION: products
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_PRODUCTS_COLLECTION: ${MONGO_PRODUCTS_COLLECTION}
     depends_on:
       mongo:
         condition: service_healthy
@@ -27,10 +27,10 @@ services:
     image: mysql:8
     container_name: mysql
     environment:
-      MYSQL_DATABASE: shop
-      MYSQL_USER: shop
-      MYSQL_PASSWORD: shop
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     healthcheck:
@@ -43,10 +43,10 @@ services:
     build: ./services/users-java
     container_name: users
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_DB: shop
-      MYSQL_USER: shop
-      MYSQL_PASSWORD: shop
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy
@@ -68,7 +68,7 @@ services:
     build: ./services/inventory
     container_name: inventory
     environment:
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL}
     depends_on:
       redis:
         condition: service_healthy
@@ -79,10 +79,10 @@ services:
     build: ./services/orders-java
     container_name: orders
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_DB: shop
-      MYSQL_USER: shop
-      MYSQL_PASSWORD: shop
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy
