@@ -79,6 +79,26 @@ jobs:
           docker build -t "$IMAGE" services/storefront
           docker push "$IMAGE"
 
+      # ========= SECURITY SCAN (TRIVY) =========
+      - name: Scan images with Trivy (fail on CRITICAL/HIGH)
+        run: |
+          # List of service name suffixes matching what you used above
+          SERVICES=("products" "users" "inventory" "orders" "payments" "storefront")
+
+          for svc in "${SERVICES[@]}"; do
+            IMAGE="$ECR_REGISTRY/ecommerce-$svc:$IMAGE_TAG"
+            echo "Scanning image: $IMAGE"
+
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy:latest \
+              image \
+                --severity CRITICAL \
+                --exit-code 1 \
+                --no-progress \
+                "$IMAGE"
+          done
+
       # ========= CONFIGURE KUBECTL =========
 
       - name: Configure kubectl for EKS
