@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-push-deploy:
-    runs-on: [ self-hosted, bastion ]   # uses your Bastion runner
+    runs-on: self-hosted
 
     env:
       # from GitHub Variables
