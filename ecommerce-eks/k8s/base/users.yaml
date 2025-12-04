@@ -19,15 +19,38 @@ spec:
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users:latest
           ports:
             - containerPort: 8080
+
           env:
+            # ==========================
+            # Database: ConfigMap values
+            # ==========================
             - name: MYSQL_HOST
-              value: ${{ vars.MYSQL_HOST }}
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-config
+                  key: MYSQL_HOST
+
             - name: MYSQL_DB
-              value: ${{ vars.MYSQL_DB }}
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-config
+                  key: MYSQL_DB
+
+            # ==========================
+            # Database credentials: Secret
+            # ==========================
             - name: MYSQL_USER
-              value: ${{ secrets.MYSQL_USER }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_USER
+
             - name: MYSQL_PASSWORD
-              value: ${{ secrets.MYSQL_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_PASSWORD
+
 ---
 apiVersion: v1
 kind: Service

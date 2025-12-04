@@ -20,35 +20,39 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            # ---- DB CONFIG (host + db) FROM CONFIGMAP ----
             - name: MYSQL_HOST
-              value: ${{ vars.MYSQL_HOST }}
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-config          # you'll create this
+                  key: MYSQL_HOST
             - name: MYSQL_DB
-              value: ${{ vars.MYSQL_DB }}
-            - name: MYSQL_USER
-              value: ${{ secrets.MYSQL_USER }}
-            - name: MYSQL_PASSWORD
-              value: ${{ secrets.MYSQL_PASSWORD }}
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-config
+                  key: MYSQL_DB
 
-            - name: PAYMENTS_SERVICE_URL
-              value: "http://payments-service:8003"
+            # ---- DB CREDENTIALS FROM SECRET ----
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials    # you'll create this
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_PASSWORD
+
+            # ---- OTHER SERVICE URLS (no secrets needed) ----
+            - name: INVENTORY_BASE_URL
+              value: "http://inventory-service:8002"
 
             - name: PAYMENT_BASE_URL
               value: "http://payments-service:8003"
 
             - name: USERS_BASE_URL
               value: "http://users-service:8083"
-
-            - name: SPRING_DATASOURCE_URL
-              value: ${{ vars.SPRING_DATASOURCE_URL }}
-
-            - name: SPRING_DATASOURCE_USERNAME
-              value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-
-            - name: INVENTORY_BASE_URL
-              value: "http://inventory-service:8002"
 ---
 apiVersion: v1
 kind: Service

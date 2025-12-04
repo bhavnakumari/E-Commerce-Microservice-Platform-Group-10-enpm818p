@@ -18,6 +18,14 @@ jobs:
       ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
       IMAGE_TAG: ${{ github.sha }}
 
+      # DB config (from GitHub Variables)
+      MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+      MYSQL_DB: ${{ vars.MYSQL_DB }}
+
+      # DB credentials (from GitHub Secrets)
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -30,7 +38,7 @@ jobs:
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin "$ECR_REGISTRY"
 
-      # ========= BUILD & PUSH IMAGES (from docker-compose build contexts) =========
+      # ========= BUILD & PUSH IMAGES =========
 
       # products service
       - name: Build & push products service
@@ -83,7 +91,6 @@ jobs:
       # ========= SECURITY SCAN (TRIVY) =========
       - name: Scan images with Trivy (fail on CRITICAL/HIGH)
         run: |
-          # List of service name suffixes matching what you used above
           SERVICES=("products" "users" "inventory" "orders" "payments" "storefront")
 
           for svc in "${SERVICES[@]}"; do
@@ -107,8 +114,23 @@ jobs:
           aws eks update-kubeconfig --region "$AWS_REGION" --name "$EKS_CLUSTER_NAME"
           kubectl get nodes
 
+      # ========= APPLY DB CONFIGMAP + SECRET =========
+
+      - name: Apply DB ConfigMap (shop-config)
+        run: |
+          kubectl -n "$K8S_NAMESPACE" create configmap shop-config \
+            --from-literal=MYSQL_HOST="${MYSQL_HOST}" \
+            --from-literal=MYSQL_DB="${MYSQL_DB}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply MySQL credentials Secret (mysql-credentials)
+        run: |
+          kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
+            --from-literal=MYSQL_USER="${MYSQL_USER}" \
+            --from-literal=MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       # ========= DEPLOY / UPDATE IMAGES IN EKS =========
-      # deployment names MUST match what you have in k8s/base/*.yaml
 
       - name: Update deployments with new images
         run: |
