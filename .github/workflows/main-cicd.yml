@@ -21,10 +21,13 @@ jobs:
       # DB config (from GitHub Variables)
       MYSQL_HOST: ${{ vars.MYSQL_HOST }}
       MYSQL_DB: ${{ vars.MYSQL_DB }}
+      MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
 
       # DB credentials (from GitHub Secrets)
       MYSQL_USER: ${{ secrets.MYSQL_USER }}
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+
 
     steps:
       - name: Checkout repo

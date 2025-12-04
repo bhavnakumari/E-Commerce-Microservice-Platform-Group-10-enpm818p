@@ -19,7 +19,6 @@ spec:
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users:latest
           ports:
             - containerPort: 8080
-
           env:
             # ==========================
             # Database: ConfigMap values
@@ -29,7 +28,6 @@ spec:
                 configMapKeyRef:
                   name: shop-config
                   key: MYSQL_HOST
-
             - name: MYSQL_DB
               valueFrom:
                 configMapKeyRef:
@@ -50,7 +48,6 @@ spec:
                 secretKeyRef:
                   name: mysql-credentials
                   key: MYSQL_PASSWORD
-
 ---
 apiVersion: v1
 kind: Service
