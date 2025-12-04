@@ -21,11 +21,23 @@ spec:
             - containerPort: 8000
           env:
             - name: MONGO_URI
-              value: ${{ vars.MONGO_URI }}
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: MONGO_URI
+
             - name: MONGO_DB
-              value: ${{ vars.MONGO_DB }}
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: MONGO_DB
+
             - name: MONGO_PRODUCTS_COLLECTION
-              value: ${{ vars.MONGO_PRODUCTS_COLLECTION }}
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: MONGO_PRODUCTS_COLLECTION
+
             - name: INVENTORY_SERVICE_URL
               value: "http://inventory-service:8002"
 ---
