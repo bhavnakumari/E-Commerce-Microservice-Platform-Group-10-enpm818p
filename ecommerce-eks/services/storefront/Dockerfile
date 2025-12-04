@@ -1,5 +1,7 @@
 # ---------- Build stage ----------
 FROM node:18-alpine AS build
+# Security: keep packages updated
+RUN apk update && apk upgrade
 
 # Create app directory
 WORKDIR /app
