@@ -19,13 +19,13 @@ spec:
           image: mysql:8
           env:
             - name: MYSQL_DATABASE
-              value: shop
+              value: ${{ vars.MYSQL_DATABASE }}
             - name: MYSQL_USER
-              value: shop
+              value: ${{ secrets.MYSQL_USER }}
             - name: MYSQL_PASSWORD
-              value: shop
+              value: ${{ secrets.MYSQL_PASSWORD }}
             - name: MYSQL_ROOT_PASSWORD
-              value: root
+              value: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           ports:
             - containerPort: 3306
           volumeMounts:

@@ -21,13 +21,13 @@ spec:
             - containerPort: 8080
           env:
             - name: MYSQL_HOST
-              value: "mysql"
+              value: ${{ vars.MYSQL_HOST }}
             - name: MYSQL_DB
-              value: "shop"
+              value: ${{ vars.MYSQL_DB }}
             - name: MYSQL_USER
-              value: "shop"
+              value: ${{ secrets.MYSQL_USER }}
             - name: MYSQL_PASSWORD
-              value: "shop"
+              value: ${{ secrets.MYSQL_PASSWORD }}
 ---
 apiVersion: v1
 kind: Service
