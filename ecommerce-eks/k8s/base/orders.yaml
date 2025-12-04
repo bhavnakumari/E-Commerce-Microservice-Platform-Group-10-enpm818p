@@ -21,13 +21,13 @@ spec:
             - containerPort: 8080
           env:
             - name: MYSQL_HOST
-              value: "mysql"
+              value: ${{ vars.MYSQL_HOST }}
             - name: MYSQL_DB
-              value: "shop"
+              value: ${{ vars.MYSQL_DB }}
             - name: MYSQL_USER
-              value: "shop"
+              value: ${{ secrets.MYSQL_USER }}
             - name: MYSQL_PASSWORD
-              value: "shop"
+              value: ${{ secrets.MYSQL_PASSWORD }}
 
             - name: PAYMENTS_SERVICE_URL
               value: "http://payments-service:8003"
@@ -39,13 +39,13 @@ spec:
               value: "http://users-service:8083"
 
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://mysql:3306/shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+              value: ${{ vars.SPRING_DATASOURCE_URL }}
 
             - name: SPRING_DATASOURCE_USERNAME
-              value: "shop"
+              value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
 
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "shop"
+              value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 
             - name: INVENTORY_BASE_URL
               value: "http://inventory-service:8002"

@@ -21,7 +21,7 @@ spec:
             - containerPort: 8000
           env:
             - name: REDIS_URL
-              value: "redis://redis:6379/0"
+              value: ${{ vars.REDIS_URL }}
 ---
 apiVersion: v1
 kind: Service

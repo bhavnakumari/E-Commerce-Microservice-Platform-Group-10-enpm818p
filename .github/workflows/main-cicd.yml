@@ -10,11 +10,12 @@ jobs:
     runs-on: [ self-hosted, bastion ]   # uses your Bastion runner
 
     env:
-      AWS_REGION: us-east-1
-      EKS_CLUSTER_NAME: ecommerce-eks-cluster
-      K8S_NAMESPACE: shop               # IMPORTANT: matches your overlay namespace
-      ECR_ACCOUNT_ID: "361769595099"    # your AWS account ID
-      ECR_REGISTRY: "361769595099.dkr.ecr.us-east-1.amazonaws.com"
+      # from GitHub Variables
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+      ECR_ACCOUNT_ID: ${{ vars.ECR_ACCOUNT_ID }}
+      ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
@@ -63,7 +64,7 @@ jobs:
           docker build -t "$IMAGE" services/orders-java
           docker push "$IMAGE"
 
-      # payments service
+      # payment service
       - name: Build & push payments service
         run: |
           cd ecommerce-eks

@@ -21,11 +21,11 @@ spec:
             - containerPort: 8000
           env:
             - name: MONGO_URI
-              value: "mongodb://mongo:27017"
+              value: ${{ vars.MONGO_URI }}
             - name: MONGO_DB
-              value: "shop"
+              value: ${{ vars.MONGO_DB }}
             - name: MONGO_PRODUCTS_COLLECTION
-              value: "products"
+              value: ${{ vars.MONGO_PRODUCTS_COLLECTION }}
             - name: INVENTORY_SERVICE_URL
               value: "http://inventory-service:8002"
 ---
