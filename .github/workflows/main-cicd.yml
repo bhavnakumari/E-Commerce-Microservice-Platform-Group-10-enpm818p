@@ -128,6 +128,7 @@ jobs:
             --from-literal=MYSQL_HOST="${MYSQL_HOST}" \
             --from-literal=MYSQL_DB="${MYSQL_DB}" \
           --from-literal=MYSQL_DB="${SPRING_DATASOURCE_URL}" \
+          --from-literal=MYSQL_DB="${MYSQL_DATABASE}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply MySQL credentials Secret (mysql-credentials)
