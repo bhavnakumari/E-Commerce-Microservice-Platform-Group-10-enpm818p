@@ -26,6 +26,12 @@ jobs:
       MYSQL_USER: ${{ secrets.MYSQL_USER }}          # e.g. "shop"
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}  # real password
 
+
+      # Mongo config (from GitHub Variables)
+      MONGO_URI: ${{ vars.MONGO_URI }}
+      MONGO_DB: ${{ vars.MONGO_DB }}
+      MONGO_PRODUCTS_COLLECTION: ${{ vars.MONGO_PRODUCTS_COLLECTION }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -122,6 +128,14 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
             --from-literal=MYSQL_USER="${MYSQL_USER}" \
             --from-literal=MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply Mongo ConfigMap (mongo-config)
+        run: |
+          kubectl -n "$K8S_NAMESPACE" create configmap mongo-config \
+            --from-literal=MONGO_URI="${MONGO_URI}" \
+            --from-literal=MONGO_DB="${MONGO_DB}" \
+            --from-literal=MONGO_PRODUCTS_COLLECTION="${MONGO_PRODUCTS_COLLECTION}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       # ========= DEPLOY / UPDATE IMAGES IN EKS =========
