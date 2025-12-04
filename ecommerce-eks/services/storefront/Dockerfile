@@ -23,6 +23,9 @@ RUN npm run build
 # ---------- Runtime (Nginx) stage ----------
 FROM nginx:stable-alpine
 
+# Security: upgrade libxml2 to pick up CVE fixes
+RUN apk update && apk upgrade --no-cache libxml2
+
 # Remove default nginx site config
 RUN rm /etc/nginx/conf.d/default.conf
 
@@ -30,7 +33,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built React app from the build stage
-# NOTE: Create React App outputs to /app/build, NOT /app/dist
 COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
