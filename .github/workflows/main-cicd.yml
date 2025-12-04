@@ -21,10 +21,16 @@ jobs:
       # DB config (from GitHub Variables)
       MYSQL_HOST: ${{ vars.MYSQL_HOST }}
       MYSQL_DB: ${{ vars.MYSQL_DB }}
+      MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+      SPRING_DATASOURCE_URL: ${{ vars.SPRING_DATASOURCE_URL }}
 
       # DB credentials (from GitHub Secrets)
       MYSQL_USER: ${{ secrets.MYSQL_USER }}
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+
 
     steps:
       - name: Checkout repo
@@ -121,6 +127,8 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create configmap shop-config \
             --from-literal=MYSQL_HOST="${MYSQL_HOST}" \
             --from-literal=MYSQL_DB="${MYSQL_DB}" \
+          --from-literal=MYSQL_DB="${SPRING_DATASOURCE_URL}" \
+          --from-literal=MYSQL_DB="${MYSQL_DATABASE}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply MySQL credentials Secret (mysql-credentials)
@@ -128,6 +136,9 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
             --from-literal=MYSQL_USER="${MYSQL_USER}" \
             --from-literal=MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            --from-literal=MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+            --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_PASSWORD}" \
+            --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_USERNAME}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       # ========= DEPLOY / UPDATE IMAGES IN EKS =========

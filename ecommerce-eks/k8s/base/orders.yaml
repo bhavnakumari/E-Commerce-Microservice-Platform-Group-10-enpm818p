@@ -20,23 +20,20 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            # ---- DB CONFIG (host + db) FROM CONFIGMAP ----
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: shop-config          # you'll create this
+                  name: shop-config
                   key: MYSQL_HOST
             - name: MYSQL_DB
               valueFrom:
                 configMapKeyRef:
                   name: shop-config
                   key: MYSQL_DB
-
-            # ---- DB CREDENTIALS FROM SECRET ----
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: mysql-credentials    # you'll create this
+                  name: mysql-credentials
                   key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
@@ -44,13 +41,26 @@ spec:
                   name: mysql-credentials
                   key: MYSQL_PASSWORD
 
-            # ---- OTHER SERVICE URLS (no secrets needed) ----
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: SPRING_DATASOURCE_URL
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: SPRING_DATASOURCE_PASSWORD
             - name: INVENTORY_BASE_URL
               value: "http://inventory-service:8002"
-
             - name: PAYMENT_BASE_URL
               value: "http://payments-service:8003"
-
             - name: USERS_BASE_URL
               value: "http://users-service:8083"
 ---
