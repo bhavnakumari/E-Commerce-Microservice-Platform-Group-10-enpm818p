@@ -19,18 +19,12 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
 
       # DB config (from GitHub Variables)
-      MYSQL_HOST: ${{ vars.MYSQL_HOST }}
-      MYSQL_DB: ${{ vars.MYSQL_DB }}
-      MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
-      SPRING_DATASOURCE_URL: ${{ vars.SPRING_DATASOURCE_URL }}
+      MYSQL_HOST: ${{ vars.MYSQL_HOST }}   # e.g. "mysql"
+      MYSQL_DB: ${{ vars.MYSQL_DB }}       # e.g. "shop"
 
       # DB credentials (from GitHub Secrets)
-      MYSQL_USER: ${{ secrets.MYSQL_USER }}
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-      SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}          # e.g. "shop"
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}  # real password
 
     steps:
       - name: Checkout repo
@@ -46,7 +40,6 @@ jobs:
 
       # ========= BUILD & PUSH IMAGES =========
 
-      # products service
       - name: Build & push products service
         run: |
           cd ecommerce-eks
@@ -54,7 +47,6 @@ jobs:
           docker build -t "$IMAGE" services/products
           docker push "$IMAGE"
 
-      # users service
       - name: Build & push users service
         run: |
           cd ecommerce-eks
@@ -62,7 +54,6 @@ jobs:
           docker build -t "$IMAGE" services/users-java
           docker push "$IMAGE"
 
-      # inventory service
       - name: Build & push inventory service
         run: |
           cd ecommerce-eks
@@ -70,7 +61,6 @@ jobs:
           docker build -t "$IMAGE" services/inventory
           docker push "$IMAGE"
 
-      # orders service
       - name: Build & push orders service
         run: |
           cd ecommerce-eks
@@ -78,7 +68,6 @@ jobs:
           docker build -t "$IMAGE" services/orders-java
           docker push "$IMAGE"
 
-      # payment service
       - name: Build & push payments service
         run: |
           cd ecommerce-eks
@@ -86,7 +75,6 @@ jobs:
           docker build -t "$IMAGE" services/payments
           docker push "$IMAGE"
 
-      # storefront (React + Nginx)
       - name: Build & push storefront service
         run: |
           cd ecommerce-eks
@@ -127,8 +115,6 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create configmap shop-config \
             --from-literal=MYSQL_HOST="${MYSQL_HOST}" \
             --from-literal=MYSQL_DB="${MYSQL_DB}" \
-          --from-literal=MYSQL_DB="${SPRING_DATASOURCE_URL}" \
-          --from-literal=MYSQL_DB="${MYSQL_DATABASE}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply MySQL credentials Secret (mysql-credentials)
@@ -136,36 +122,27 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
             --from-literal=MYSQL_USER="${MYSQL_USER}" \
             --from-literal=MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
-            --from-literal=MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
-            --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_PASSWORD}" \
-            --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_USERNAME}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       # ========= DEPLOY / UPDATE IMAGES IN EKS =========
 
       - name: Update deployments with new images
         run: |
-          # products
           kubectl -n "$K8S_NAMESPACE" set image deployment/products-deployment \
             products="$ECR_REGISTRY/ecommerce-products:$IMAGE_TAG"
 
-          # users
           kubectl -n "$K8S_NAMESPACE" set image deployment/users-deployment \
             users="$ECR_REGISTRY/ecommerce-users:$IMAGE_TAG"
 
-          # inventory
           kubectl -n "$K8S_NAMESPACE" set image deployment/inventory-deployment \
             inventory="$ECR_REGISTRY/ecommerce-inventory:$IMAGE_TAG"
 
-          # orders
           kubectl -n "$K8S_NAMESPACE" set image deployment/orders-deployment \
             orders="$ECR_REGISTRY/ecommerce-orders:$IMAGE_TAG"
 
-          # payments
           kubectl -n "$K8S_NAMESPACE" set image deployment/payments-deployment \
             payments="$ECR_REGISTRY/ecommerce-payments:$IMAGE_TAG"
-          
-          # storefront
+
           kubectl -n "$K8S_NAMESPACE" set image deployment/storefront-deployment \
             storefront="$ECR_REGISTRY/ecommerce-storefront:$IMAGE_TAG"
 
