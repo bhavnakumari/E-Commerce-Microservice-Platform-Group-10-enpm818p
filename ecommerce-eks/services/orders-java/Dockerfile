@@ -1,4 +1,6 @@
 FROM eclipse-temurin:17-jre
+# allow Tomcat to access java.io
+ENV JAVA_TOOL_OPTIONS="--add-opens=java.base/java.io=ALL-UNNAMED"
 RUN useradd -m app
 WORKDIR /app
 
