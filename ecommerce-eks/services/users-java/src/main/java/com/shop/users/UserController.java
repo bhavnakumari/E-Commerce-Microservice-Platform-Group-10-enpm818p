@@ -1,6 +1,7 @@
 package com.shop.users;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
@@ -24,7 +25,8 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/health, /users/health")
+    // Health check
+    @GetMapping({"/health", "/users/health"})
     public Map<String, String> health() {
         return Map.of(
                 "status", "ok",
@@ -32,34 +34,80 @@ public class UserController {
         );
     }
 
+    // ---------- GET USER BY ID ----------
+
     @GetMapping("/{id}")
-    public UserResponse getUserById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
         return userRepository.findById(id)
-                .map(UserResponse::fromEntity)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(UserResponse.fromEntity(user)))
+                .orElseGet(() -> ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "message", "User not found: " + id
+                        )));
     }
 
+    // ---------- REGISTER ----------
+
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@RequestBody RegisterRequest request) {
-        // basic validation
-        if (request.email() == null || request.email().isBlank()
-                || request.password() == null || request.password().isBlank()
-                || request.fullName() == null || request.fullName().isBlank()
-                || request.street() == null || request.street().isBlank()
-                || request.city() == null || request.city().isBlank()
-                || request.state() == null || request.state().isBlank()
-                || request.postalCode() == null || request.postalCode().isBlank()
-                || request.country() == null || request.country().isBlank()) {
-            throw new IllegalArgumentException("email, password, fullName, and address fields are required");
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+
+        // Field-level validation with 400 instead of exceptions
+
+        if (request.email() == null || request.email().isBlank()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "field", "email",
+                            "message", "Email is required"
+                    ));
         }
 
-        // check if email already exists
-        userRepository.findByEmail(request.email())
-                .ifPresent(existing -> {
-                    throw new IllegalStateException("Email already registered");
-                });
+        if (request.password() == null || request.password().isBlank()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "field", "password",
+                            "message", "Password is required"
+                    ));
+        }
 
+        if (request.fullName() == null || request.fullName().isBlank()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "field", "fullName",
+                            "message", "Full name is required"
+                    ));
+        }
+
+        boolean missingAddress =
+                request.street() == null || request.street().isBlank()
+                        || request.city() == null || request.city().isBlank()
+                        || request.state() == null || request.state().isBlank()
+                        || request.postalCode() == null || request.postalCode().isBlank()
+                        || request.country() == null || request.country().isBlank();
+
+        if (missingAddress) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "field", "address",
+                            "message", "Address fields are required"
+                    ));
+        }
+
+        // Duplicate email → 409 Conflict (instead of IllegalStateException)
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of(
+                            "field", "email",
+                            "message", "Email already registered"
+                    ));
+        }
+
+        // Create & save user
         String hashed = passwordEncoder.encode(request.password());
 
         UserEntity entity = new UserEntity();
@@ -74,29 +122,53 @@ public class UserController {
         entity.setCreatedAt(Instant.now());
 
         UserEntity saved = userRepository.save(entity);
-        return UserResponse.fromEntity(saved);
+        UserResponse body = UserResponse.fromEntity(saved);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(body);
     }
 
+    // ---------- LOGIN ----------
+
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        // Missing fields → 400 (no exceptions)
         if (request.email() == null || request.email().isBlank()
                 || request.password() == null || request.password().isBlank()) {
-            throw new IllegalArgumentException("email and password are required");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "email and password are required"
+                    ));
         }
 
         var optionalUser = userRepository.findByEmail(request.email());
         if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("Invalid credentials");
+            // Invalid email → 401
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message", "Invalid credentials"
+                    ));
         }
 
         UserEntity user = optionalUser.get();
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            // Wrong password → 401
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message", "Invalid credentials"
+                    ));
         }
 
+        // Generate simple token (same logic as before)
         String payload = user.getId() + ":" + user.getEmail() + ":" + Instant.now().getEpochSecond();
         String token = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
 
-        return new LoginResponse(user.getId(), user.getEmail(), token);
+        LoginResponse response = new LoginResponse(user.getId(), user.getEmail(), token);
+        return ResponseEntity.ok(response);
     }
 }
