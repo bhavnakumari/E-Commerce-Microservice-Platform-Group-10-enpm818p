@@ -136,6 +136,7 @@ jobs:
           kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
             --from-literal=MYSQL_USER="${MYSQL_USER}" \
             --from-literal=MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            --from-literal=MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
             --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_PASSWORD}" \
             --from-literal=MYSQL_PASSWORD="${SPRING_DATASOURCE_USERNAME}" \
             --dry-run=client -o yaml | kubectl apply -f -
