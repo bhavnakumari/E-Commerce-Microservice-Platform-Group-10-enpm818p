@@ -48,6 +48,12 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>10.1.35</version> <!-- >= fixed version from Trivy report -->
+        </dependency>
     </dependencies>
 
     <build>
