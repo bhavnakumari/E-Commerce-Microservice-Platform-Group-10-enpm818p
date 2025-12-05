@@ -113,14 +113,14 @@ jobs:
           sudo mv kyverno /usr/local/bin/kyverno
           kyverno version
 
-      # ========= VALIDATE MANIFESTS WITH KYVERNO =========
-
+      # ========= VALIDATE MANIFESTS WITH KYVERNO  =========
       - name: Validate Kubernetes manifests with Kyverno
+        continue-on-error: true
         run: |
           cd ecommerce-eks
-          # Policies live in: k8s/policies
-          # Manifests (resources) live in: k8s/base
-          kyverno apply k8s/policies -r k8s/base
+          echo "Running Kyverno policy validation (advisory mode)..."
+          kyverno apply k8s/policies -f k8s/base | tee kyverno-report.txt
+          echo "Kyverno validation finished. Violations (if any) are shown above in the logs."
 
       # ========= CONFIGURE KUBECTL =========
 

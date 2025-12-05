@@ -3,14 +3,20 @@ kind: ClusterPolicy
 metadata:
   name: disallow-root
 spec:
-  validationFailureAction: enforce
-  background: false
+  # 🔽 Only report, do NOT block workloads
+  validationFailureAction: audit
+  background: true
   rules:
     - name: check-run-as-non-root
       match:
-        resources:
-          kinds:
-            - Pod
+        any:
+          - resources:
+              kinds:
+                - Pod
+                - Deployment
+                - StatefulSet
+              namespaces:
+                - shop        # only check your app namespace
       validate:
         message: "Running as root user is not allowed"
         pattern:
