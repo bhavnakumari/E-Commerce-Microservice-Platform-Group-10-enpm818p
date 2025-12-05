@@ -14,13 +14,15 @@ spec:
       labels:
         app: users
     spec:
+      serviceAccountName: app-secrets-sa   # <-- service account used by pods
       containers:
         - name: users
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users:latest
           ports:
             - containerPort: 8080
+
+          # DB host & DB name from ConfigMap
           env:
-            # DB: from ConfigMap
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
@@ -32,7 +34,7 @@ spec:
                   name: shop-config
                   key: MYSQL_DB
 
-            # DB credentials: from Secret
+            # DB credentials from Secret
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
