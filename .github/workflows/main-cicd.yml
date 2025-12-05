@@ -32,6 +32,10 @@ jobs:
       MONGO_DB: ${{ vars.MONGO_DB }}
       MONGO_PRODUCTS_COLLECTION: ${{ vars.MONGO_PRODUCTS_COLLECTION }}
 
+
+      # Redis config
+      REDIS_URL: ${{ vars.REDIS_URL }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -136,6 +140,12 @@ jobs:
             --from-literal=MONGO_URI="${MONGO_URI}" \
             --from-literal=MONGO_DB="${MONGO_DB}" \
             --from-literal=MONGO_PRODUCTS_COLLECTION="${MONGO_PRODUCTS_COLLECTION}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply Redis ConfigMap (redis-config)
+        run: |
+          kubectl -n "$K8S_NAMESPACE" create configmap redis-config \
+            --from-literal=REDIS_URL="${REDIS_URL}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       # ========= DEPLOY / UPDATE IMAGES IN EKS =========
