@@ -105,6 +105,18 @@ jobs:
                 "$IMAGE"
           done
 
+      # ========= VALIDATE MANIFESTS WITH KYVERNO =========
+      - name: Validate Kubernetes manifests with Kyverno
+        run: |
+          cd ecommerce-eks
+
+          # Run Kyverno CLI in a container, validating policies against your manifests
+          docker run --rm \
+            -v "$PWD":/work \
+            ghcr.io/kyverno/kyverno:v1.12.0 \
+            kyverno apply /work/k8s/policies \
+              --resource /work/k8s/manifests
+
       # ========= CONFIGURE KUBECTL =========
 
       - name: Configure kubectl for EKS
