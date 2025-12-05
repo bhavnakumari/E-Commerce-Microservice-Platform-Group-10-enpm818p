@@ -19,9 +19,9 @@ spec:
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-inventory:latest
           ports:
             - containerPort: 8000
-          env:
-            - name: REDIS_URL
-              value: ${{ vars.REDIS_URL }}
+          envFrom:
+            - configMapRef:
+                name: redis-config
 ---
 apiVersion: v1
 kind: Service
