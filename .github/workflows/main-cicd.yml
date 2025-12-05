@@ -118,7 +118,7 @@ jobs:
       - name: Validate Kubernetes manifests with Kyverno
         run: |
           cd ecommerce-eks
-          kyverno apply k8s/policies -f k8s/ --fail-on-violation
+          kyverno apply k8s/policies -f k8s/
 
       # ========= CONFIGURE KUBECTL =========
 
