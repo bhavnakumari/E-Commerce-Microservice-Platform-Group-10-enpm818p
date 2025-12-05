@@ -21,15 +21,6 @@ jobs:
       # Secrets Manager
       RDS_SECRET_NAME: ${{ vars.RDS_SECRET_NAME }}
 
-      # DB config (from GitHub Variables)
-      MYSQL_HOST: ${{ vars.MYSQL_HOST }}   # e.g. "mysql"
-      MYSQL_DB: ${{ vars.MYSQL_DB }}       # e.g. "shop"
-
-      # DB credentials (from GitHub Secrets)
-      MYSQL_USER: ${{ secrets.MYSQL_USER }}          # e.g. "shop"
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}  # real password
-
-
       # Mongo config (from GitHub Variables)
       MONGO_URI: ${{ vars.MONGO_URI }}
       MONGO_DB: ${{ vars.MONGO_DB }}
@@ -123,35 +114,39 @@ jobs:
 
       # ========= APPLY DB CONFIGMAP + SECRET =========
 
-      - name: Apply DB ConfigMap (shop-config)
+      - name: Fetch DB config & credentials from AWS Secrets Manager
         run: |
-          kubectl -n "$K8S_NAMESPACE" create configmap shop-config \
-            --from-literal=MYSQL_HOST="${MYSQL_HOST}" \
-            --from-literal=MYSQL_DB="${MYSQL_DB}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Fetch DB credentials from AWS Secrets Manager
-        run: |
-          # Get the JSON string from Secrets Manager
+          # 1) Get JSON from Secrets Manager
           SECRET_JSON=$(aws secretsmanager get-secret-value \
             --secret-id "$RDS_SECRET_NAME" \
             --query SecretString \
             --output text)
 
-          # Ensure jq is available (self-hosted runner may already have it)
+          # 2) Parse fields using jq
           if ! command -v jq >/dev/null 2>&1; then
             sudo yum install -y jq || sudo apt-get update && sudo apt-get install -y jq || true
           fi
 
-          DB_USER=$(echo "$SECRET_JSON" | jq -r '.username')
-          DB_PASSWORD=$(echo "$SECRET_JSON" | jq -r '.password')
+          DB_HOST=$(echo "$SECRET_JSON"    | jq -r '.host')
+          DB_NAME=$(echo "$SECRET_JSON"    | jq -r '.dbname')
+          DB_USER=$(echo "$SECRET_JSON"    | jq -r '.username')
+          DB_PASSWORD=$(echo "$SECRET_JSON"| jq -r '.password')
 
-          echo "DB_USER=$DB_USER" >> $GITHUB_ENV
+          echo "DB_HOST=$DB_HOST"       >> $GITHUB_ENV
+          echo "DB_NAME=$DB_NAME"       >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER"       >> $GITHUB_ENV
           echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
           
 
-      - name: Apply MySQL credentials Secret (mysql-credentials)
+      - name: Apply DB ConfigMap and Secret from Secrets Manager data
         run: |
+          # ConfigMap for non-secret values
+          kubectl -n "$K8S_NAMESPACE" create configmap shop-config \
+            --from-literal=MYSQL_HOST="${DB_HOST}" \
+            --from-literal=MYSQL_DB="${DB_NAME}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          # Secret for credentials
           kubectl -n "$K8S_NAMESPACE" create secret generic mysql-credentials \
             --from-literal=MYSQL_USER="${DB_USER}" \
             --from-literal=MYSQL_PASSWORD="${DB_PASSWORD}" \

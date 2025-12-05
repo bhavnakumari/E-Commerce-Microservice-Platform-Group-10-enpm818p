@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: users-deployment
+  namespace: shop
   labels:
     app: users
 spec:
@@ -14,15 +15,14 @@ spec:
       labels:
         app: users
     spec:
-      serviceAccountName: app-secrets-sa   # <-- service account used by pods
+      serviceAccountName: app-secrets-sa
       containers:
         - name: users
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users:latest
           ports:
             - containerPort: 8080
-
-          # DB host & DB name from ConfigMap
           env:
+            # From ConfigMap: host + DB name (now RDS DB)
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
@@ -34,7 +34,7 @@ spec:
                   name: shop-config
                   key: MYSQL_DB
 
-            # DB credentials from Secret
+            # From Secret: creds fetched from AWS Secrets Manager via CI
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
@@ -50,9 +50,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: users-service
+  namespace: shop
+  labels:
+    app: users
 spec:
   selector:
     app: users
   ports:
-    - port: 8083
+    - name: http
+      port: 8083
       targetPort: 8080
+  type: ClusterIP
