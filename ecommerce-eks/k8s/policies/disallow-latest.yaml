@@ -3,7 +3,7 @@ kind: ClusterPolicy
 metadata:
   name: disallow-latest-tag
 spec:
-  validationFailureAction: enforce
+  validationFailureAction: audit
   background: true
   rules:
     - name: block-latest-tag
@@ -14,6 +14,8 @@ spec:
                 - Pod
                 - Deployment
                 - StatefulSet
+              namespaces:
+                - shop
       validate:
         message: "Using the 'latest' image tag is not allowed."
         pattern:

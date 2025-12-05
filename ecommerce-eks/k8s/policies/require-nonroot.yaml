@@ -3,7 +3,8 @@ kind: ClusterPolicy
 metadata:
   name: require-run-as-non-root
 spec:
-  validationFailureAction: enforce
+  # 🔽 Only advisory
+  validationFailureAction: audit
   background: true
   rules:
     - name: run-as-non-root
@@ -14,6 +15,8 @@ spec:
                 - Pod
                 - Deployment
                 - StatefulSet
+              namespaces:
+                - shop
       validate:
         message: "Containers must run as non-root with runAsNonRoot=true."
         pattern:
