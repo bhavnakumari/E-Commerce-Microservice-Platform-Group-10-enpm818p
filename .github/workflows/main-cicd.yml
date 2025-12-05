@@ -105,17 +105,20 @@ jobs:
                 "$IMAGE"
           done
 
+      # ========= POLICY VALIDATION (KYVERNO) =========
+      - name: Install Kyverno CLI
+        run: |
+          curl -LO https://github.com/kyverno/kyverno/releases/latest/download/kyverno-cli_linux_x86_64.tar.gz
+          tar -xzf kyverno-cli_linux_x86_64.tar.gz
+          sudo mv kyverno /usr/local/bin/
+          kyverno version
+
       # ========= VALIDATE MANIFESTS WITH KYVERNO =========
+
       - name: Validate Kubernetes manifests with Kyverno
         run: |
-          cd ecommerce-eks
+          kyverno apply policies/ -f ecommerce-eks/k8s/ --fail-on-violation
 
-          # Run Kyverno CLI in a container, validating policies against your manifests
-          docker run --rm \
-            -v "$PWD":/work \
-            ghcr.io/kyverno/kyverno:v1.12.0 \
-            kyverno apply /work/k8s/policies \
-              --resource /work/k8s/manifests
 
       # ========= CONFIGURE KUBECTL =========
 
