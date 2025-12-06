@@ -1,0 +1,74 @@
+# CODEOWNERS file for E-Commerce Microservices Platform
+#
+# This file defines code ownership for automatic review requests.
+# Replace @username with actual GitHub usernames or team handles.
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+# These users will be requested for review when someone opens a pull request
+* @username
+
+# Documentation
+*.md @username
+/docs/ @username
+
+# CI/CD and GitHub workflows
+/.github/ @username
+/.github/workflows/ @username
+
+# Infrastructure and Kubernetes
+/ecommerce-eks/k8s/ @username
+/ecommerce-eks/terraform/ @username
+/ecommerce-eks/helm/ @username
+*.yaml @username
+*.yml @username
+
+# Java/Spring Boot Services
+# Users Service
+/ecommerce-eks/services/users-java/ @username
+/ecommerce-eks/services/users-java/pom.xml @username
+
+# Orders Service
+/ecommerce-eks/services/orders-java/ @username
+/ecommerce-eks/services/orders-java/pom.xml @username
+
+# Python/FastAPI Services
+# Products Service
+/ecommerce-eks/services/products-fastapi/ @username
+/ecommerce-eks/services/products-fastapi/requirements.txt @username
+
+# Inventory Service
+/ecommerce-eks/services/inventory-fastapi/ @username
+/ecommerce-eks/services/inventory-fastapi/requirements.txt @username
+
+# Payments Service
+/ecommerce-eks/services/payments-fastapi/ @username
+/ecommerce-eks/services/payments-fastapi/requirements.txt @username
+
+# Notifications Worker
+/ecommerce-eks/services/notifications-worker/ @username
+/ecommerce-eks/services/notifications-worker/requirements.txt @username
+
+# Storefront (React)
+/ecommerce-eks/storefront/ @username
+/ecommerce-eks/storefront/package.json @username
+/ecommerce-eks/storefront/package-lock.json @username
+
+# Docker and Docker Compose
+Dockerfile @username
+docker-compose.yml @username
+.dockerignore @username
+
+# Database migrations and schemas
+**/migrations/ @username
+**/schema.sql @username
+
+# Security and secrets management
+**/secrets/ @username
+**/external-secrets.yaml @username
+
+# Monitoring and observability
+/ecommerce-eks/monitoring/ @username
+**/prometheus/ @username
+**/grafana/ @username
