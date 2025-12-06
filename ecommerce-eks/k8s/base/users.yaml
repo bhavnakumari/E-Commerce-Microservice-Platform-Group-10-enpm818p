@@ -53,11 +53,15 @@ metadata:
   namespace: shop
   labels:
     app: users
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "8080"   # container port where Spring Boot exposes actuator
 spec:
   selector:
     app: users
   ports:
     - name: http
-      port: 8083
-      targetPort: 8080
+      port: 8083        # cluster IP port
+      targetPort: 8080  # forwards to container port 8080
   type: ClusterIP

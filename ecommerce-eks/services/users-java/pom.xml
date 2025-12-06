@@ -59,6 +59,11 @@
         <artifactId>tomcat-embed-core</artifactId>
         <version>10.1.35</version> <!-- >= fixed version from Trivy report -->
         </dependency>
+
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-registry-prometheus</artifactId>
+      </dependency>
     </dependencies>
 
     <build>
