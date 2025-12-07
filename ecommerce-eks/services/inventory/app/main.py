@@ -1,7 +1,9 @@
 import os
+import time
 import redis
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import Histogram, Counter, generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI(
     root_path="/inventory",
@@ -23,6 +25,51 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
 redis_client: redis.Redis | None = None
 
+# ---------- Prometheus Metrics ----------
+
+# Histogram for request duration
+http_request_duration = Histogram(
+    "http_server_requests_seconds",
+    "HTTP server request duration in seconds",
+    ["service", "method", "uri", "status"],   # 👈 add "service"
+    buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
+)
+
+# Counter for total requests
+http_requests_total = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["service", "method", "uri", "status"],   # 👈 add "service"
+)
+
+
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    start = time.perf_counter()
+
+    response = await call_next(request)
+
+    latency = time.perf_counter() - start
+    labels = {
+        "service": "inventory-service",                 # 👈 new
+        "method": request.method,
+        "uri": request.url.path,
+        "status": str(response.status_code),
+    }
+
+    http_request_duration.labels(**labels).observe(latency)
+    http_requests_total.labels(**labels).inc()
+
+    return response
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    data = generate_latest()
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+
+
+# ---------- Redis Helper ----------
 
 def get_redis() -> redis.Redis:
     global redis_client

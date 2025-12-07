@@ -27,14 +27,14 @@ TEST_CARD = "4242424242424242"
 http_request_duration = Histogram(
     "http_server_requests_seconds",
     "HTTP server request duration in seconds",
-    ["method", "uri", "status"],
+    ["service", "method", "uri", "status"],
     buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
 )
 
 http_requests_total = Counter(
     "http_requests_total",
     "Total HTTP requests",
-    ["method", "uri", "status"],
+    ["service", "method", "uri", "status"],
 )
 
 
@@ -66,6 +66,7 @@ async def prometheus_middleware(request: Request, call_next):
 
     latency = time.perf_counter() - start
     labels = {
+        "service": "payments-service",
         "method": request.method,
         "uri": request.url.path,
         "status": str(response.status_code),
