@@ -19,6 +19,14 @@ spec:
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-storefront:latest
           ports:
             - containerPort: 80
+          # === Added resources section ===
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
