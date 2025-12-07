@@ -1,7 +1,9 @@
 import uuid
-from fastapi import FastAPI, HTTPException
+import time
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, constr
+from prometheus_client import Histogram, Counter, generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI(
     root_path="/inventory",
@@ -10,7 +12,7 @@ app = FastAPI(
     description="Static payment microservice with a single test card.",
 )
 
-# Add CORS middleware
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,6 +22,20 @@ app.add_middleware(
 )
 
 TEST_CARD = "4242424242424242"
+
+# 🔹 Prometheus metrics (define BEFORE middleware so names exist)
+http_request_duration = Histogram(
+    "http_server_requests_seconds",
+    "HTTP server request duration in seconds",
+    ["method", "uri", "status"],
+    buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
+)
+
+http_requests_total = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "uri", "status"],
+)
 
 
 class PaymentRequest(BaseModel):
@@ -40,6 +56,31 @@ class PaymentResponse(BaseModel):
     status: str = Field(..., example="APPROVED")  # or DECLINED
     transactionId: str = Field(..., example="pay_123456")
     reason: str | None = Field(None, example="Test card approved")
+
+
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    start = time.perf_counter()
+
+    response = await call_next(request)
+
+    latency = time.perf_counter() - start
+    labels = {
+        "method": request.method,
+        "uri": request.url.path,
+        "status": str(response.status_code),
+    }
+
+    http_request_duration.labels(**labels).observe(latency)
+    http_requests_total.labels(**labels).inc()
+
+    return response
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    data = generate_latest()
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/health")
@@ -63,7 +104,6 @@ async def charge(request: PaymentRequest):
             reason="Test card approved",
         )
     else:
-        # In real life you'd NOT raise, but here it's okay to signal failure clearly
         return PaymentResponse(
             status="DECLINED",
             transactionId=tx_id,
