@@ -56,12 +56,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: orders-service
+  namespace: shop
   labels:
     app: orders
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "8080"   # container port where Spring Boot exposes actuator
 spec:
   selector:
     app: orders
   ports:
-    - port: 8084
-      targetPort: 8080
+    - name: http
+      port: 8084          # Service (cluster) port
+      targetPort: 8080    # forwards to containerPort (likely 8080)
   type: ClusterIP
