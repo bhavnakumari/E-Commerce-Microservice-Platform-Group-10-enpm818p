@@ -59,4 +59,3 @@ spec:
     - name: http
       port: 8001        # service port
       targetPort: 8000
-  type: ClusterIP
