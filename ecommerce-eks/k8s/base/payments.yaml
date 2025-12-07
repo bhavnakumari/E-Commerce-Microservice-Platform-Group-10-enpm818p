@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payments-deployment
+  namespace: shop
   labels:
     app: payments
 spec:
@@ -30,12 +31,12 @@ metadata:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/path: "/metrics"
-    prometheus.io/port: "8003"
+    prometheus.io/port: "8003"   # Prometheus talks to the Service on 8003
 spec:
   selector:
     app: payments
   ports:
     - name: http
-      port: 8003
-      targetPort: 8003
+      port: 8003        # Service port
+      targetPort: 8000
   type: ClusterIP
