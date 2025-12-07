@@ -1,12 +1,11 @@
 import os
-import time
 from uuid import uuid4
 import httpx
-from fastapi import FastAPI, HTTPException, status, Request, Response
+
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
-from prometheus_client import Histogram, Counter, generate_latest, CONTENT_TYPE_LATEST
 
 from .schemas import Product, ProductCreate, ProductUpdate
 
@@ -25,47 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ---- Prometheus Metrics ----
-http_request_duration = Histogram(
-    "http_server_requests_seconds",
-    "HTTP server request duration in seconds",
-    ["service", "method", "uri", "status"],
-    buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
-)
-
-http_requests_total = Counter(
-    "http_requests_total",
-    "Total HTTP requests",
-    ["service", "method", "uri", "status"],
-)
-
-
-@app.middleware("http")
-async def prometheus_middleware(request: Request, call_next):
-    start = time.perf_counter()
-
-    response = await call_next(request)
-
-    latency = time.perf_counter() - start
-    labels = {
-        "service": "products-service",
-        "method": request.method,
-        "uri": request.url.path,
-        "status": str(response.status_code),
-    }
-
-    http_request_duration.labels(**labels).observe(latency)
-    http_requests_total.labels(**labels).inc()
-
-    return response
-
-
-@app.get("/metrics")
-def metrics() -> Response:
-    data = generate_latest()
-    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
-
 
 # ---- Mongo config ----
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017")
