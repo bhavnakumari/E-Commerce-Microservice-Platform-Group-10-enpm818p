@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IRSA Role for AWS Load Balancer Controller
+
+Parameters:
+
+  ClusterName:
+    Type: String
+    Default: ecommerce-eks-cluster
+
+  OIDCProviderArn:
+    Type: String
+    Description: "Full ARN of the OIDC Provider"
+
+  OIDCProviderId:
+    Type: String
+    Description: "OIDC Provider ID (for example: DA2E3C0C4FD7B4713CF49ACA52EFE446)"
+
+
+Resources:
+
+  ALBControllerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "${ClusterName}-alb-controller-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - acm:DescribeCertificate
+              - acm:ListCertificates
+              - acm:GetCertificate
+              - ec2:AuthorizeSecurityGroupIngress
+              - ec2:CreateSecurityGroup
+              - ec2:CreateTags
+              - ec2:DeleteTags
+              - ec2:DeleteSecurityGroup
+              - ec2:Describe*
+              - ec2:RevokeSecurityGroupIngress
+              - elasticloadbalancing:AddTags
+              - elasticloadbalancing:CreateListener
+              - elasticloadbalancing:CreateLoadBalancer
+              - elasticloadbalancing:CreateRule
+              - elasticloadbalancing:CreateTargetGroup
+              - elasticloadbalancing:DeleteListener
+              - elasticloadbalancing:DeleteLoadBalancer
+              - elasticloadbalancing:DeleteRule
+              - elasticloadbalancing:DeleteTargetGroup
+              - elasticloadbalancing:DeregisterTargets
+              - elasticloadbalancing:Describe*
+              - elasticloadbalancing:ModifyListener
+              - elasticloadbalancing:ModifyLoadBalancerAttributes
+              - elasticloadbalancing:ModifyRule
+              - elasticloadbalancing:ModifyTargetGroup
+              - elasticloadbalancing:RegisterTargets
+            Resource: "*"
+
+
+  ALBControllerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ClusterName}-alb-irsa-role"
+      AssumeRolePolicyDocument:
+        Fn::Sub: >
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Federated": "${OIDCProviderArn}"
+                },
+                "Action": "sts:AssumeRoleWithWebIdentity",
+                "Condition": {
+                  "StringEquals": {
+                    "oidc.eks.${AWS::Region}.amazonaws.com/id/${OIDCProviderId}:sub":
+                      "system:serviceaccount:kube-system:aws-load-balancer-controller",
+                    "oidc.eks.${AWS::Region}.amazonaws.com/id/${OIDCProviderId}:aud":
+                      "sts.amazonaws.com"
+                  }
+                }
+              }
+            ]
+          }
+      ManagedPolicyArns:
+        - !Ref ALBControllerPolicy
+
+
+Outputs:
+
+  ALBControllerRoleArn:
+    Description: "ARN of the ALB Controller IAM Role"
+    Value: !GetAtt ALBControllerRole.Arn
+    Export:
+      Name: ALBControllerRoleArn
