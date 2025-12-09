@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Bastion host with IAM role for EKS admin + GitHub Actions runner
+
+Parameters:
+  VpcId:
+    Type: String
+    Description: VPC where bastion will be launched
+
+  PublicSubnetId:
+    Type: String
+    Description: Public subnet ID for bastion
+
+  SSHKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to SSH into bastion
+
+  AllowedSSH:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: CIDR allowed to SSH (use your IP/32 in real use)
+
+  BastionInstanceType:
+    Type: String
+    Default: t3.medium
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+    Description: EC2 instance type for bastion
+
+  BastionAmiId:
+    Type: AWS::EC2::Image::Id
+    Description: AMI ID for bastion
+
+Resources:
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Bastion host
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedSSH
+      Tags:
+        - Key: Name
+          Value: bastion-sg
+
+  BastionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: BastionEKSAdminRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        # For EKS cluster + nodes management
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        # For ECR push/pull in CI/CD
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+        # Logs / basic admin visibility
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+        # Optional: gives broad access for lab use (tighten in prod!)
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Tags:
+        - Key: Name
+          Value: bastion-eks-admin-role
+
+  BastionInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: BastionEKSAdminInstanceProfile
+      Roles:
+        - !Ref BastionRole
+
+  BastionInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref BastionInstanceType
+      ImageId: !Ref BastionAmiId
+      IamInstanceProfile: !Ref BastionInstanceProfile
+      KeyName: !Ref SSHKeyName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref PublicSubnetId
+          GroupSet:
+            - !Ref BastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: bastion-eks-runner
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -xe
+
+          # Basic tools
+          yum update -y || dnf update -y || true
+          yum install -y git docker || dnf install -y git docker || true
+
+          systemctl enable docker || true
+          systemctl start docker || true
+
+          # AWS CLI v2 is usually already there on AL2023, but you can uncomment to enforce:
+          # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          # unzip awscliv2.zip
+          # ./aws/install
+
+          # Create a directory for GitHub runner (you will configure manually after SSH)
+          mkdir -p /home/ec2-user/actions-runner
+          chown ec2-user:ec2-user /home/ec2-user/actions-runner
+
+          # Print instance role for sanity check
+          aws sts get-caller-identity || true
+
+Outputs:
+  BastionInstanceId:
+    Description: ID of the bastion EC2 instance
+    Value: !Ref BastionInstance
+    Export:
+      Name: bastion-instance-id
+
+  BastionPublicIP:
+    Description: Public IP address of the bastion host
+    Value: !GetAtt BastionInstance.PublicIp
+    Export:
+      Name: bastion-public-ip
+
+  BastionRoleName:
+    Description: IAM Role name attached to bastion
+    Value: !Ref BastionRole
+    Export:
+      Name: bastion-role-name
