@@ -1,0 +1,68 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce-ingress
+  namespace: frontend
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: ecommerce
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+spec:
+  rules:
+    - http:
+        paths:
+          # Frontend root path
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+
+          # Products service
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: products-svc
+                port:
+                  number: 80
+
+          # Orders service
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: orders-svc
+                port:
+                  number: 80
+
+          # Inventory service
+          - path: /api/inventory
+            pathType: Prefix
+            backend:
+              service:
+                name: inventory-svc
+                port:
+                  number: 80
+
+          # Users service
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: users-svc
+                port:
+                  number: 80
+
+          # Payments service
+          - path: /api/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-svc
+                port:
+                  number: 80

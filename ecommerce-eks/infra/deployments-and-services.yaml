@@ -1,0 +1,275 @@
+#Fronted
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: frontend-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: frontend
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-storefront
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: [ "ALL" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+#Products
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-deployment
+  namespace: products
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: products
+  template:
+    metadata:
+      labels:
+        app: products
+    spec:
+      serviceAccountName: products-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: products
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-products
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: [ "ALL" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-svc
+  namespace: products
+spec:
+  selector:
+    app: products
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+#Orders
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-deployment
+  namespace: orders
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      serviceAccountName: orders-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: orders
+          image:  361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-orders
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: [ "ALL" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-svc
+  namespace: orders
+spec:
+  selector:
+    app: orders
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+#Inventory
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-deployment
+  namespace: inventory
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      serviceAccountName: inventory-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: inventory
+          image:   361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-inventory
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: [ "ALL" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-svc
+  namespace: inventory
+spec:
+  selector:
+    app: inventory
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+#Users
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: users
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      serviceAccountName: users-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: users
+          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-svc
+  namespace: users
+spec:
+  selector:
+    app: users
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+
+#Payments
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-deployment
+  namespace: payments
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      serviceAccountName: payments-sa
+      nodeSelector:
+        node-type: workload-ng
+      containers:
+        - name: payments
+          image:  361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-payments
+          ports:
+            - containerPort: 80
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-svc
+  namespace: payments
+spec:
+  selector:
+    app: payments
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
