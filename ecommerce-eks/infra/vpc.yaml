@@ -55,9 +55,7 @@ Resources:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  ##############################################################
-  # Public Subnets (ALB)
-  ##############################################################
+  # Public Subnets
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -88,9 +86,7 @@ Resources:
         - Key: kubernetes.io/role/elb
           Value: "1"
 
-  ##############################################################
-  # Private Worker Subnets
-  ##############################################################
+  # Private Subnets
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -119,9 +115,7 @@ Resources:
         - Key: kubernetes.io/role/internal-elb
           Value: "1"
 
-  ##############################################################
-  # Database Subnets (No NAT Route)
-  ##############################################################
+  # Database Subnets 
   DatabaseSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -142,9 +136,7 @@ Resources:
         - Key: Name
           Value: db-subnet-2
 
-  ##############################################################
   # NAT Gateway
-  ##############################################################
   NatEIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -156,9 +148,7 @@ Resources:
       AllocationId: !GetAtt NatEIP.AllocationId
       SubnetId: !Ref PublicSubnet1
 
-  ##############################################################
   # Route Tables
-  ##############################################################
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -189,9 +179,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
 
-  ##############################################################
   # Subnet Associations
-  ##############################################################
   PublicSubnet1Association:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:

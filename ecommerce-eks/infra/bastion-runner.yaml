@@ -30,9 +30,8 @@ Parameters:
     Description: EC2 instance type for bastion
 
   BastionAmiId:
-    Type: String
-    Default: ami-034105577e027efc9
-    Description: AMI ID for bastion (team-provided AMI)
+    Type: AWS::EC2::Image::Id
+    Description: AMI ID for bastion
 
 Resources:
   BastionSecurityGroup:

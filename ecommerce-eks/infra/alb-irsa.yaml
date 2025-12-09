@@ -74,7 +74,9 @@ Resources:
                 "Condition": {
                   "StringEquals": {
                     "oidc.eks.${AWS::Region}.amazonaws.com/id/${OIDCProviderId}:sub":
-                      "system:serviceaccount:kube-system:aws-load-balancer-controller"
+                      "system:serviceaccount:kube-system:aws-load-balancer-controller",
+                    "oidc.eks.${AWS::Region}.amazonaws.com/id/${OIDCProviderId}:aud":
+                      "sts.amazonaws.com"
                   }
                 }
               }

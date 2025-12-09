@@ -30,10 +30,7 @@ Parameters:
 
 
 Resources:
-
-  #################################################################
   # IAM Role for EKS Control Plane
-  #################################################################
   EKSClusterRole:
     Type: AWS::IAM::Role
     Properties:
@@ -52,9 +49,7 @@ Resources:
         - Key: Name
           Value: !Sub "${ClusterName}-ekscluster-role"
 
-  #################################################################
   # EKS Cluster (NO OIDC)
-  #################################################################
   EKSCluster:
     Type: AWS::EKS::Cluster
     Properties:

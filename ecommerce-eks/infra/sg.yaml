@@ -16,10 +16,7 @@ Parameters:
 
 
 Resources:
-
-  ###########################################################
   # ALB Security Group
-  ###########################################################
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -35,9 +32,7 @@ Resources:
           Value: ALB-SG
 
 
-  ###########################################################
   # NodeGroup Security Group
-  ###########################################################
   NodeSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -45,13 +40,13 @@ Resources:
       VpcId: !Ref VpcId
       SecurityGroupIngress:
 
-        # ALB → NodePort communication
+        # ALB to NodePort communication
         - IpProtocol: tcp
           FromPort: 30000
           ToPort: 32767
           SourceSecurityGroupId: !Ref ALBSecurityGroup
 
-        # Node ↔ Node internal VPC traffic
+        # Node to Node internal VPC traffic
         - IpProtocol: -1
           CidrIp: !Ref VpcCidrRange
 
@@ -60,9 +55,7 @@ Resources:
           Value: Node-SG
 
 
-  ###########################################################
-  # EKS CONTROL PLANE SECURITY GROUP (FIXED)
-  ###########################################################
+  # EKS CONTROL PLANE SECURITY GROUP
   ClusterSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -71,13 +64,13 @@ Resources:
 
       SecurityGroupIngress:
 
-        # 1️⃣ Allow all INTERNAL VPC (including Bastion + nodes) → EKS API
+        # Allow all INTERNAL VPC (including Bastion + nodes) to EKS API
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          CidrIp: !Ref VpcCidrRange   # <-- FIXED (makes kubectl work)
+          CidrIp: !Ref VpcCidrRange   
 
-        # 2️⃣ Allow worker nodes to communicate with Control Plane
+        # Allow worker nodes to communicate with Control Plane
         - IpProtocol: -1
           SourceSecurityGroupId: !Ref NodeSecurityGroup
 
@@ -85,10 +78,7 @@ Resources:
         - Key: Name
           Value: EKS-Cluster-SG
 
-
-  ###########################################################
   # RDS Security Group
-  ###########################################################
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
