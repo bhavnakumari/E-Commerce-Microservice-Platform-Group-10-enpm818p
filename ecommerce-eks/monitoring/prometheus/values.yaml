@@ -1,0 +1,19 @@
+grafana:
+  adminUser: admin
+  adminPassword: admin123
+  service:
+    type: LoadBalancer
+  defaultDashboardsEnabled: true
+  persistence:
+    enabled: false 
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1

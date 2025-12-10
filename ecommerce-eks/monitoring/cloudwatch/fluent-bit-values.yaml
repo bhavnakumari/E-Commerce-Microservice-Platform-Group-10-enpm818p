@@ -1,0 +1,24 @@
+cloudWatch:
+  enabled: true
+  region: us-east-1
+  logGroupName: /eks/ecommerce-eks-cluster/pods
+  logStreamPrefix: fluent-bit-
+  logRetentionDays: 7
+  autoCreateGroup: true
+
+firehose:
+  enabled: false
+kinesis:
+  enabled: false
+kinesis_streams:
+  enabled: false
+
+kubernetes:
+  enabled: true
+
+serviceAccount:
+  create: true
+  name: aws-for-fluent-bit
+
+logs:
+  level: info
