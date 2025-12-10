@@ -29,7 +29,7 @@ spec:
               service:
                 name: products-svc
                 port:
-                  number: 80
+                  number: 8001
 
           # Orders service
           - path: /api/orders
@@ -38,7 +38,7 @@ spec:
               service:
                 name: orders-svc
                 port:
-                  number: 80
+                  number: 8084
 
           # Inventory service
           - path: /api/inventory
@@ -47,7 +47,7 @@ spec:
               service:
                 name: inventory-svc
                 port:
-                  number: 80
+                  number: 8002
 
           # Users service
           - path: /api/users
@@ -56,7 +56,7 @@ spec:
               service:
                 name: users-svc
                 port:
-                  number: 80
+                  number: 8083
 
           # Payments service
           - path: /api/payments
@@ -65,4 +65,4 @@ spec:
               service:
                 name: payments-svc
                 port:
-                  number: 80
+                  number: 8003
