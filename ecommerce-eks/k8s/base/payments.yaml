@@ -19,7 +19,7 @@ spec:
         - name: payments
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-payments:latest
           ports:
-            - containerPort: 8003
+            - containerPort: 8000
           # === Added resources section ===
           resources:
             requests:
