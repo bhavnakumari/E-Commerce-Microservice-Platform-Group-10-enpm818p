@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create ECR repositories for E-Commerce Microservice Platform
+  (products, users, inventory, orders, payments, storefront).
+
+Parameters:
+  RepositoryPrefix:
+    Type: String
+    Default: ecommerce
+    Description: Prefix for repository names (e.g., "ecommerce" -> ecommerce-products)
+
+Resources:
+  ProductsRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-products"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  UsersRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-users"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  InventoryRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-inventory"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  OrdersRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-orders"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  PaymentsRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-payments"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+  StorefrontRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub "${RepositoryPrefix}-storefront"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+Outputs:
+  ProductsRepositoryUri:
+    Value: !GetAtt ProductsRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-ProductsRepositoryUri"
+
+  UsersRepositoryUri:
+    Value: !GetAtt UsersRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-UsersRepositoryUri"
+
+  InventoryRepositoryUri:
+    Value: !GetAtt InventoryRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-InventoryRepositoryUri"
+
+  OrdersRepositoryUri:
+    Value: !GetAtt OrdersRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-OrdersRepositoryUri"
+
+  PaymentsRepositoryUri:
+    Value: !GetAtt PaymentsRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-PaymentsRepositoryUri"
+
+  StorefrontRepositoryUri:
+    Value: !GetAtt StorefrontRepo.RepositoryUri
+    Export:
+      Name: !Sub "${AWS::StackName}-StorefrontRepositoryUri"
