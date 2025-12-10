@@ -29,6 +29,20 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: users
+  labels:
+    pod-security.kubernetes.io/enforce: "restricted"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payments
+  labels:
+    pod-security.kubernetes.io/enforce: "restricted"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: database
   labels:
     pod-security.kubernetes.io/enforce: "restricted"
