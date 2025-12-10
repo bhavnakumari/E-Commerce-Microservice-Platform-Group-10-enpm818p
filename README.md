@@ -10,13 +10,11 @@ This project demonstrates scalable microservices, CI/CD, monitoring, secrets man
 | Service | Tech Stack | Database | Purpose |
 |----------|-------------|-----------|----------|
 | **Storefront** | React + NGINX | — | User-facing storefront SPA |
-| **Users Service** | Java Spring Boot | MySQL + Redis | Registration, login, JWT auth |
-| **Products Service** | Python FastAPI | MongoDB + Redis | Product catalog and caching |
-| **Inventory Service** | Python FastAPI | MongoDB | Stock levels, low-stock alerts |
-| **Orders Service** | Java Spring Boot | MySQL + Redis Streams | Checkout and order lifecycle |
+| **Users Service** | Java Spring Boot | MySQL | Registration, login, JWT auth |
+| **Products Service** | Python FastAPI | MongoDB  | Product catalog and caching |
+| **Inventory Service** | Python FastAPI | Redis | Stock levels, low-stock alerts |
+| **Orders Service** | Java Spring Boot | MySQL | Checkout and order lifecycle |
 | **Payments Service** | Python FastAPI | - | Payment simulation & confirmations |
-| **Notifications Worker** | Python | Redis Streams | Consumes events, sends emails/SMS |
-
 ---
 
 ## Databases & Infrastructure
