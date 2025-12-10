@@ -1,36 +1,4 @@
-# NAMESPACES
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: frontend
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: products
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: orders
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: inventory
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: users
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: payments
-
-#FRONTEND
----
+#Fronted
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -61,7 +29,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              drop: ["ALL"]
+              drop: [ "ALL" ]
 ---
 apiVersion: v1
 kind: Service
@@ -76,9 +44,7 @@ spec:
       targetPort: 80
   type: ClusterIP
 
-
-#PRODUCTS
----
+#Products
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -101,7 +67,7 @@ spec:
         - name: products
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-products
           ports:
-            - containerPort: 8001
+            - containerPort: 80
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
@@ -109,7 +75,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              drop: ["ALL"]
+              drop: [ "ALL" ]
 ---
 apiVersion: v1
 kind: Service
@@ -120,12 +86,11 @@ spec:
   selector:
     app: products
   ports:
-    - port: 8001
-      targetPort: 8001
+    - port: 80
+      targetPort: 80
   type: ClusterIP
 
-#ORDERS
----
+#Orders
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -146,9 +111,9 @@ spec:
         node-type: workload-ng
       containers:
         - name: orders
-          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-orders
+          image:  361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-orders
           ports:
-            - containerPort: 8084
+            - containerPort: 80
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
@@ -156,7 +121,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              drop: ["ALL"]
+              drop: [ "ALL" ]
 ---
 apiVersion: v1
 kind: Service
@@ -167,12 +132,11 @@ spec:
   selector:
     app: orders
   ports:
-    - port: 8084
-      targetPort: 8084
+    - port: 80
+      targetPort: 80
   type: ClusterIP
 
-# INVENTORY
----
+#Inventory
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -193,9 +157,9 @@ spec:
         node-type: workload-ng
       containers:
         - name: inventory
-          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-inventory
+          image:   361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-inventory
           ports:
-            - containerPort: 8002
+            - containerPort: 80
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
@@ -203,7 +167,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              drop: ["ALL"]
+              drop: [ "ALL" ]
 ---
 apiVersion: v1
 kind: Service
@@ -214,12 +178,11 @@ spec:
   selector:
     app: inventory
   ports:
-    - port: 8002
-      targetPort: 8002
+    - port: 80
+      targetPort: 80
   type: ClusterIP
 
-#USERS
----
+#Users
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -242,7 +205,7 @@ spec:
         - name: users
           image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-users
           ports:
-            - containerPort: 8083
+            - containerPort: 80
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
@@ -261,13 +224,11 @@ spec:
   selector:
     app: users
   ports:
-    - port: 8083
-      targetPort: 8083
+    - port: 80
+      targetPort: 80
   type: ClusterIP
 
-
-# PAYMENTS
----
+#Payments
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -288,9 +249,9 @@ spec:
         node-type: workload-ng
       containers:
         - name: payments
-          image: 361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-payments
+          image:  361769595099.dkr.ecr.us-east-1.amazonaws.com/ecommerce-payments
           ports:
-            - containerPort: 8003
+            - containerPort: 80
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
@@ -309,6 +270,6 @@ spec:
   selector:
     app: payments
   ports:
-    - port: 8003
-      targetPort: 8003
+    - port: 80
+      targetPort: 80
   type: ClusterIP
