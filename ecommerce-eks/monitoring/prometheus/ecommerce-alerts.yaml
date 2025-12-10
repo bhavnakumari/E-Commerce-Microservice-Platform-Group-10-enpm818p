@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ecommerce-alerts
+  namespace: monitoring
+  labels:
+    release: ecommerce-monitoring
+spec:
+  groups:
+  - name: http-alerts
+    rules:
+    - alert: HighErrorRateUsers
+      expr: |
+        (
+          sum(rate(http_server_requests_seconds_count{service="users-service",status=~"5.."}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{service="users-service"}[5m]))
+        ) > 0.05
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High HTTP 5xx error rate on users-service"
+        description: "More than 5% of requests to users-service are returning 5xx over the last 5 minutes."
+
+  - name: k8s-alerts
+    rules:
+    - alert: PodCrashLoopingShop
+      expr: |
+        increase(kube_pod_container_status_restarts_total{namespace="shop"}[10m]) > 3
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod restarting frequently in shop namespace"
+        description: "One or more containers in namespace=shop restarted more than 3 times in the last 10 minutes."

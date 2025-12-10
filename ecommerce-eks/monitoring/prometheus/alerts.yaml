@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ecommerce-slo-rules
+  namespace: monitoring
+  labels:
+    release: ecommerce-monitoring
+spec:
+  groups:
+    - name: ecommerce-slo.rules
+      rules:
+        - alert: PodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="shop"}[2m]) > 0
+          for: 30s
+          labels:
+            severity: critical
+          annotations:
+            summary: "Pod is crash looping in namespace 'shop'"
+            description: "One or more pods in shop restarted in the last 2 minutes."

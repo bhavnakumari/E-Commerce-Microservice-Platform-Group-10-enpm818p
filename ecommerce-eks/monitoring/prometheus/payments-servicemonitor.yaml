@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: payments-metrics
+  namespace: monitoring
+  labels:
+    release: ecommerce-monitoring   
+spec:
+  namespaceSelector:
+    matchNames:
+      - shop
+  selector:
+    matchLabels:
+      app: payments                
+  endpoints:
+    - port: http                    
+      path: /metrics                
+      interval: 15s
